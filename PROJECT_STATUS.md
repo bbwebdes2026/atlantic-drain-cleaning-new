@@ -1,25 +1,36 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-23 (session 0 — repo initialised, nothing built yet)
+> Last updated: 2026-07-23 (session 1 — build-order step 1 complete)
 
 ## Current state (one paragraph)
 
-Nothing built. This is session 0: the brief, competitor research, design system and
-build order are settled and written into CLAUDE.md, and `/assets-raw` holds the client's
-photography (≈48 WhatsApp-compressed job photos) plus the pamphlet that is the source of
-truth for brand copy and the logo lockup. No scaffold, no Vercel project, no repo history
-beyond this file. **Next action is build-order step 1** — scaffold Next.js 15 with the
-tokens, both Google Fonts and `data/business.ts`, get a placeholder homepage rendering,
-and push it to Vercel so a preview URL exists on day one. The near-term deadline is a
-client preview of the Hero (build-order step 3), so steps 1–3 must stay tight.
+**Step 1 done.** Next.js 15 (App Router, TypeScript) is scaffolded with the full CLAUDE.md
+design system wired into the Tailwind v4 theme — nine colour tokens, the 4px spacing scale
+(Tailwind default), the 4/8/12 radius scale, both shadow tokens, and dark/light hairline
+border colours. Archivo + IBM Plex Sans load via `next/font/google` (display: swap, latin)
+as CSS variables mapped to `font-display` / `font-body`, with the full type scale, the hero
+clamp at leading 0.95, and the eyebrow utility. `data/business.ts` is the single typed
+source of truth: pamphlet-confirmed facts populated, every unconfirmed fact `null` with a
+`// PENDING OWNER CONFIRMATION` comment. The App Router is scaffolded so `app/[suburb]`
+can be added later without restructuring (no suburb page built). The placeholder homepage
+proves the wiring only (wordmark in Archivo, body in Plex, nine-colour swatch row, working
+`tel:` and `wa.me` links from the data module) — it is not the hero. A global
+`prefers-reduced-motion` guard and visible `surf` focus rings sit in the base layer.
+`npm run build` compiles clean (Next 15.5.21). Committed and pushed to `origin/main`. The
+Vercel deploy uses the **dashboard Git integration** (client's choice) — repo import is a
+one-time manual step; **preview URL to be pasted in below once live**. Next is step 2
+(logo vectorisation + image pipeline). The near-term deadline is the Hero client preview
+(step 3), so steps 2–3 stay tight.
+
+**Preview URL:** _pending — awaiting Vercel dashboard import of `bbwebdes2026/atlantic-drain-cleaning-new`._
 
 ## Section tracker
 
 | Section | Status | Notes |
 |---|---|---|
-| Scaffold / tokens / fonts | not started | Step 1. Next.js 15 App Router + TS + Tailwind v4; Archivo + IBM Plex Sans via `next/font`; `data/business.ts` with PENDING fields as `null` |
-| Vercel preview deploy | not started | Step 1. Preview URL only — **do not touch DNS** (client email runs on the domain) |
+| Scaffold / tokens / fonts | done | Step 1. Next.js 15.5.21 App Router + TS + Tailwind v4; all nine colour tokens, 4/8/12 radius, both shadows, dark/light hairlines; Archivo + IBM Plex Sans via `next/font`; type scale + hero clamp + eyebrow; `data/business.ts` with PENDING fields `null`; reduced-motion + surf focus rings in base layer. Build compiles clean |
+| Vercel preview deploy | in progress | Step 1. **Dashboard Git integration** (client's choice) — repo pushed; awaiting one-time import at vercel.com/new + preview URL. Preview URL only — **do not touch DNS** (client email runs on the domain) |
 | Logo vectorisation | not started | Step 2. Redraw pamphlet mark faithfully → `logo-full.svg` + `logo-mark.svg`. Redraw, do not redesign |
 | Image pipeline | not started | Step 2. `scripts/enhance-images.mjs` — Real-ESRGAN upscale (all sources are WhatsApp-compressed) → Sharp grade → Tier 3 bezel crops → `/public/images` + manifest |
 | Header + mobile sticky bar | not started | Step 3. Mobile collapses to sticky bottom bar in the thumb zone |
@@ -56,11 +67,14 @@ No runs yet — first Lighthouse/axe/Playwright pass is due at the end of step 3
 
 ## In progress
 
-Nothing. Step 1 not yet begun.
+Vercel dashboard import of `bbwebdes2026/atlantic-drain-cleaning-new` (Git integration) —
+one-time manual step; preview URL to be recorded above once live.
 
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-23 — Vercel deploy set up via the dashboard Git integration rather than CLI/token: every push to `origin/main` auto-deploys and PRs get preview URLs, which suits the "push after every section" workflow. One-time repo import done in the Vercel dashboard; no custom domain added (DNS stays untouched — client email runs on the domain).
+2026-07-23 — Build-order step 1 completed: Next.js 15 (App Router, TS) + Tailwind v4 with the full token set, both Google Fonts via `next/font`, `data/business.ts` as the single typed source of truth (unconfirmed facts `null`, PENDING-commented), placeholder wiring-proof homepage, reduced-motion guard + surf focus rings. Spacing left on Tailwind v4's default 0.25rem (4px) base, which already emits the CLAUDE.md 4→160 steps — no override needed. `framer-motion` added now (sanctioned stack; first used at step 3); no Lenis/GSAP/WebGL.
 2026-07-23 — Deferred lead capture to phase 2 and documented the limitation: with no backend there is no lead record, so if Mark loses the WhatsApp chat the lead is gone and there is no data on what the site produces. Accepted for phase 1 to keep the build static and hit the preview deadline.
 2026-07-23 — Routing scaffolded for `app/[suburb]/page.tsx` but suburb pages explicitly out of scope for phase 1. Competitors (Combat Plumbing) already run per-suburb landing pages; this is the phase-2 SEO move and costs nothing to leave open now.
 2026-07-23 — Dropped Lenis, GSAP and ScrollTrigger from the stack (all present on the Coachman build). Framer Motion `useScroll` covers everything needed here; smooth-scroll hijacking and a shader canvas are a tax paid by exactly the user who can least afford it — someone on mobile data with a drain emergency. No WebGL background at all; ambient is a static radial gradient + 3% noise.
@@ -91,8 +105,13 @@ Nothing. Step 1 not yet begun.
 
 ## Next up
 
-**Step 1** — scaffold Next.js 15 (App Router, TypeScript, Tailwind v4) with the design
-tokens and both Google Fonts wired in, create `data/business.ts` with unconfirmed fields
-as `null`, render a placeholder homepage that proves tokens and fonts work, push to
-GitHub and deploy to Vercel so a preview URL exists. Then steps 2 and 3 to reach the
-client preview milestone.
+**Finish step 1:** paste the live `*.vercel.app` preview URL into "Current state" above
+once the dashboard import completes, then confirm the preview renders.
+
+**Step 2** — logo vectorisation (`public/logo-full.svg` + `public/logo-mark.svg`, redraw
+the pamphlet mark faithfully, wordmark as outlined paths) and the image pipeline
+(`scripts/enhance-images.mjs`, `npm run images`): Real-ESRGAN upscale → Sharp grade →
+Tier 3 bezel crops → `/public/images` + manifest. Commit the manifest, not the binary.
+Then step 3 (Header + Hero + WhatsApp deep-link) to reach the client preview milestone.
+
+_Awaiting owner review of step 1 before starting step 2._
