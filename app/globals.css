@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Atlantic Drain Cleaning — design tokens (CLAUDE.md → Tailwind v4 theme)
+   Everything the brief specifies is wired here so no later section retrofits it.
+   ========================================================================== */
+
+@theme {
+  /* --- Colours (nine, exact hex from CLAUDE.md) --------------------------- */
+  --color-abyss: #071520; /* deepest background, hero scrim base */
+  --color-ink: #0b1e2d; /* primary page background, body text on light */
+  --color-brand: #0f73b8; /* the logo blue — links, active states */
+  --color-surf: #46a9e0; /* accents, icon strokes, focus rings */
+  --color-whatsapp: #25d366; /* WhatsApp CTA and nothing else, ever */
+  --color-foam: #f4f7f9; /* light section background */
+  --color-mist: #e2e9ee; /* light dividers, card fills on light */
+  --color-steel: #8ca3b3; /* muted text on dark */
+  --color-slate: #465a6b; /* muted text on light */
+
+  /* Hairline border tokens (elevation on flat surfaces is a 1px hairline) */
+  --color-hairline-dark: rgba(255, 255, 255, 0.08);
+  --color-hairline-light: rgba(11, 30, 45, 0.08);
+
+  /* --- Fonts (wired to next/font CSS variables in app/layout.tsx) --------- */
+  --font-display: var(--font-archivo), system-ui, sans-serif; /* Archivo */
+  --font-body: var(--font-plex), system-ui, sans-serif; /* IBM Plex Sans */
+
+  /* --- Type scale: 12 / 14 / 16 / 18 / 22 / 28 / 40 / 64 / 88 ------------- */
+  --text-12: 0.75rem;
+  --text-14: 0.875rem;
+  --text-16: 1rem;
+  --text-18: 1.125rem;
+  --text-22: 1.375rem;
+  --text-28: 1.75rem;
+  --text-40: 2.5rem;
+  --text-64: 4rem;
+  --text-88: 5.5rem;
+
+  /* Hero display: clamp with leading 0.95 baked into the utility */
+  --text-hero: clamp(2.5rem, 8vw, 5.5rem);
+  --text-hero--line-height: 0.95;
+
+  /* --- Letter-spacing (display −0.03em, H2 −0.02em, eyebrow +0.14em) ------ */
+  --tracking-display: -0.03em;
+  --tracking-h2: -0.02em;
+  --tracking-eyebrow: 0.14em;
+
+  /* --- Radius: 4 (inputs) / 8 (cards) / 12 (image containers) ------------- */
+  --radius-input: 4px;
+  --radius-card: 8px;
+  --radius-image: 12px;
+
+  /* --- The only two real shadows on the page ----------------------------- */
+  --shadow-lift: 0 2px 8px rgba(7, 21, 32, 0.08), 0 12px 32px rgba(7, 21, 32, 0.1);
+  --shadow-fab: 0 8px 24px rgba(37, 211, 102, 0.28);
+}
+
+/* Spacing note: CLAUDE.md's 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 / 128 / 160
+   scale is a 4px base. Tailwind v4's default --spacing is 0.25rem (4px), so
+   p-1 … p-40 already emit exactly these steps — no override needed. */
+
+/* ============================================================================
+   Base layer — global defaults, focus rings, reduced-motion guard
+   ========================================================================== */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-foam);
+    font-family: var(--font-body);
+    font-size: var(--text-16);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Visible surf focus rings for every interactive element — set once, now,
+     so no later section has to retrofit keyboard accessibility. */
+  :focus-visible {
+    outline: 2px solid var(--color-surf);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* Eyebrow: 12px / 600 / uppercase / +0.14em (CLAUDE.md typography) */
+@layer components {
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: var(--text-12);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-eyebrow);
+    line-height: 1;
+  }
+}
+
+/* Global prefers-reduced-motion guard — collapse all motion to near-instant.
+   Later sections layer opacity-only fallbacks on top of this baseline. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
