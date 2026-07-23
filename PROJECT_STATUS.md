@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-23 (session 1 — build-order step 1 complete)
+> Last updated: 2026-07-23 (session 2 — build-order step 2 complete)
 
 ## Current state (one paragraph)
 
@@ -25,14 +25,30 @@ one-time manual step; **preview URL to be pasted in below once live**. Next is s
 
 **Preview URL:** _pending — awaiting Vercel dashboard import of `bbwebdes2026/atlantic-drain-cleaning-new`._
 
+**Step 2 done.** The logo is vectorised: `public/logo-mark.svg` (wave) and
+`public/logo-full.svg` (horizontal lockup). The wave was produced by potrace-tracing the
+pamphlet mark from a colour-separated blue/surf mask (faithful to the original curl, foam
+and barrel), recoloured to `brand`/`surf` with thin white inner separation lines; the
+`ATLANTIC / Drain / Cleaning / WAVES OF CHANGE` wordmark is set as **Archivo glyph
+outlines** (not live text) — the pamphlet's exact typeface can't be identified from the
+WhatsApp-compressed raster, so the site's own display face was used and flagged for owner
+review. The image pipeline `scripts/enhance-images.mjs` (`npm run images`) upscales,
+applies one shared cool-navy grade (Tier 2 desaturated a little more), supports Tier-3
+CCTV bezel crops, and emits AVIF + WebP into `/public/images` with a content-hash
+`manifest.json` for cheap reruns; it ran over all 48 job photos plus the Tier-1 hero.
+Real-ESRGAN is wired in but opt-in (`REALESRGAN=1`) — this environment has no Vulkan, so
+the run used the Lanczos fallback, which is honest given the sources are only ≤1280px.
+Build compiles clean. Next is **step 3** (Header + Hero + WhatsApp deep-link) — the client
+preview milestone.
+
 ## Section tracker
 
 | Section | Status | Notes |
 |---|---|---|
 | Scaffold / tokens / fonts | done | Step 1. Next.js 15.5.21 App Router + TS + Tailwind v4; all nine colour tokens, 4/8/12 radius, both shadows, dark/light hairlines; Archivo + IBM Plex Sans via `next/font`; type scale + hero clamp + eyebrow; `data/business.ts` with PENDING fields `null`; reduced-motion + surf focus rings in base layer. Build compiles clean |
 | Vercel preview deploy | in progress | Step 1. **Dashboard Git integration** (client's choice) — repo pushed; awaiting one-time import at vercel.com/new + preview URL. Preview URL only — **do not touch DNS** (client email runs on the domain) |
-| Logo vectorisation | not started | Step 2. Redraw pamphlet mark faithfully → `logo-full.svg` + `logo-mark.svg`. Redraw, do not redesign |
-| Image pipeline | not started | Step 2. `scripts/enhance-images.mjs` — Real-ESRGAN upscale (all sources are WhatsApp-compressed) → Sharp grade → Tier 3 bezel crops → `/public/images` + manifest |
+| Logo vectorisation | done | Step 2. Wave = potrace trace of the pamphlet mark (faithful) in the two brand blues + white inner lines; wordmark = Archivo glyph outlines (site display face; pamphlet font unidentifiable from the compressed raster). `public/logo-full.svg` (lockup) + `public/logo-mark.svg` (wave). Awaiting owner review against the pamphlet |
+| Image pipeline | done | Step 2. `scripts/enhance-images.mjs` (`npm run images`): upscale (Real-ESRGAN opt-in via `REALESRGAN=1`, else Lanczos) → shared cool-navy Sharp grade (Tier 2 desaturated more) → Tier-3 bezel crop hook → AVIF/WebP in `/public/images` + content-hash `manifest.json`. Ran over all 48 job photos; hero graded (Tier 1) |
 | Header + mobile sticky bar | not started | Step 3. Mobile collapses to sticky bottom bar in the thumb zone |
 | Hero | not started | Step 3. Sea Point rig shot (`WhatsApp_Image_20260721_at_11_57_14.jpeg`) + Rotating Text noun. **Client preview milestone** |
 | Trust bar | not started | Step 4. Renders only confirmed facts; collapses if null |
@@ -68,11 +84,15 @@ No runs yet — first Lighthouse/axe/Playwright pass is due at the end of step 3
 ## In progress
 
 Vercel dashboard import of `bbwebdes2026/atlantic-drain-cleaning-new` (Git integration) —
-one-time manual step; preview URL to be recorded above once live.
+one-time manual step from step 1; preview URL to be recorded above once live.
 
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-23 — Processed `/public/images` committed to the repo (≈17 MB) rather than regenerated at build time: a client-preview deploy must be bulletproof, and committing photography in a site repo is normal. Images will be replaced when full-res originals arrive. Output capped at 1280px long edge (sources are ≤1280 and display is capped at 720) so the Lanczos fallback does not fabricate resolution; AVIF+WebP at q80/q58.
+2026-07-23 — Image pipeline built as `scripts/enhance-images.mjs` with Real-ESRGAN opt-in (`REALESRGAN=1`, downloaded into gitignored `scripts/bin`) and a Lanczos fallback so the pipeline always produces output. This environment has no Vulkan, so the run used Lanczos. One shared cool-navy grade unifies a set shot on different phones; Tier 2 is desaturated more than Tier 1; a Tier-3 CCTV bezel-crop hook exists but its file list is curated later (step 5). Content-hash manifest makes reruns cheap.
+2026-07-23 — Logo wave vectorised by potrace-tracing the pamphlet (colour-separated brand/surf masks, connected-component + hole-fill cleanup) rather than hand-drawing — hand attempts read as a blob; the trace is faithful to the actual curl. Generation tooling (potrace `--no-save`, fonttools, Archivo TTF) lives outside the repo; only the two SVGs ship. Method recorded here for reproducibility.
+2026-07-23 — Wordmark set as Archivo glyph outlines (site display face), not the pamphlet's own typeface, which is unidentifiable from the WhatsApp-compressed raster. Owner-confirmed choice; flagged for review against the pamphlet. Outlined (not live text) per CLAUDE.md so the lockup is font-independent.
 2026-07-23 — Vercel deploy set up via the dashboard Git integration rather than CLI/token: every push to `origin/main` auto-deploys and PRs get preview URLs, which suits the "push after every section" workflow. One-time repo import done in the Vercel dashboard; no custom domain added (DNS stays untouched — client email runs on the domain).
 2026-07-23 — Build-order step 1 completed: Next.js 15 (App Router, TS) + Tailwind v4 with the full token set, both Google Fonts via `next/font`, `data/business.ts` as the single typed source of truth (unconfirmed facts `null`, PENDING-commented), placeholder wiring-proof homepage, reduced-motion guard + surf focus rings. Spacing left on Tailwind v4's default 0.25rem (4px) base, which already emits the CLAUDE.md 4→160 steps — no override needed. `framer-motion` added now (sanctioned stack; first used at step 3); no Lenis/GSAP/WebGL.
 2026-07-23 — Deferred lead capture to phase 2 and documented the limitation: with no backend there is no lead record, so if Mark loses the WhatsApp chat the lead is gone and there is no data on what the site produces. Accepted for phase 1 to keep the build static and hit the preview deadline.
@@ -105,13 +125,17 @@ one-time manual step; preview URL to be recorded above once live.
 
 ## Next up
 
-**Finish step 1:** paste the live `*.vercel.app` preview URL into "Current state" above
-once the dashboard import completes, then confirm the preview renders.
+**Still open from step 1:** paste the live `*.vercel.app` preview URL into "Current state"
+once the Vercel dashboard import completes.
 
-**Step 2** — logo vectorisation (`public/logo-full.svg` + `public/logo-mark.svg`, redraw
-the pamphlet mark faithfully, wordmark as outlined paths) and the image pipeline
-(`scripts/enhance-images.mjs`, `npm run images`): Real-ESRGAN upscale → Sharp grade →
-Tier 3 bezel crops → `/public/images` + manifest. Commit the manifest, not the binary.
-Then step 3 (Header + Hero + WhatsApp deep-link) to reach the client preview milestone.
+**Owner review of step 2:** check `public/logo-full.svg` and `logo-mark.svg` against the
+pamphlet — the wave is a faithful trace; the wordmark uses Archivo (not the pamphlet
+font). Confirm this is acceptable, or supply the pamphlet's print file / font so the
+wordmark can match exactly. Full-res photo originals would also let the pipeline produce
+genuinely upscaled imagery instead of the Lanczos fallback.
 
-_Awaiting owner review of step 1 before starting step 2._
+**Step 3** — Header (incl. mobile sticky bottom bar) + Hero (Sea Point rig shot, Rotating
+Text noun) + the WhatsApp deep-link plumbing. **This is the client preview milestone —
+stop and get it in front of Mark.**
+
+_Awaiting owner review of step 2 before starting step 3._
