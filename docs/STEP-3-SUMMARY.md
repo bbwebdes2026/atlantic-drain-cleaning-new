@@ -85,4 +85,4 @@ secret files touched.
 
 **PASS.**
 
-Latest commit hash: _see git log on `step-3-header-hero` (filled at commit time)._
+Latest commit hash: `3d4ca4f` (branch `step-3-header-hero`, pushed to origin).
