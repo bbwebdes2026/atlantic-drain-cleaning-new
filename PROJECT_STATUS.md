@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-23 (session 2 — build-order step 2 complete)
+> Last updated: 2026-07-24 (session 3 — build-order step 3 complete)
 
 ## Current state (one paragraph)
 
@@ -38,8 +38,21 @@ CCTV bezel crops, and emits AVIF + WebP into `/public/images` with a content-has
 `manifest.json` for cheap reruns; it ran over all 48 job photos plus the Tier-1 hero.
 Real-ESRGAN is wired in but opt-in (`REALESRGAN=1`) — this environment has no Vulkan, so
 the run used the Lanczos fallback, which is honest given the sources are only ≤1280px.
-Build compiles clean. Next is **step 3** (Header + Hero + WhatsApp deep-link) — the client
-preview milestone.
+
+**Step 3 done — the client-preview milestone.** The homepage now renders Header + Hero +
+the mobile sticky action bar (`components/Header.tsx`, `Hero.tsx`, `MobileActionBar.tsx`,
+`RotatingText.tsx`; `app/page.tsx` rewired). The header is transparent over the hero and
+tints to `ink` + a hairline on scroll; on mobile it collapses to a two-button thumb-zone
+bottom bar (Call / WhatsApp, safe-area padded). The Hero is the Sea Point rig shot via
+`next/image` (`fill priority`, no layout shift) behind a navy multiply + bottom `ink`
+scrim, with an eyebrow, the "We clear {rotating noun}" headline (Framer Motion, 4 nouns,
+2.5s, present on first paint, reduced-motion → opacity), a both-services subline, WhatsApp
++ Call CTAs, and a three-claim pamphlet trust strip. All CTAs are real `wa.me`/`tel:`
+hrefs in the SSR HTML (no async click handler — iOS-safe) and work with JS disabled. Build
++ lint + typecheck clean; SSR smoke test passed with no errors. **Work is on branch
+`step-3-header-hero` (not main)** per the run instruction — merge when reviewed. Not yet
+run: Lighthouse mobile + Playwright 360/768/1440 screenshots (the step-3 self-QA pass).
+Next is **step 4** (Trust bar + Services + How it works). See `docs/STEP-3-SUMMARY.md`.
 
 ## Section tracker
 
@@ -49,8 +62,8 @@ preview milestone.
 | Vercel preview deploy | in progress | Step 1. **Dashboard Git integration** (client's choice) — repo pushed; awaiting one-time import at vercel.com/new + preview URL. Preview URL only — **do not touch DNS** (client email runs on the domain) |
 | Logo vectorisation | done | Step 2. Wave = potrace trace of the pamphlet mark (faithful) in the two brand blues + white inner lines; wordmark = Archivo glyph outlines (site display face; pamphlet font unidentifiable from the compressed raster). `public/logo-full.svg` (lockup) + `public/logo-mark.svg` (wave). Awaiting owner review against the pamphlet |
 | Image pipeline | done | Step 2. `scripts/enhance-images.mjs` (`npm run images`): upscale (Real-ESRGAN opt-in via `REALESRGAN=1`, else Lanczos) → shared cool-navy Sharp grade (Tier 2 desaturated more) → Tier-3 bezel crop hook → AVIF/WebP in `/public/images` + content-hash `manifest.json`. Ran over all 48 job photos; hero graded (Tier 1) |
-| Header + mobile sticky bar | not started | Step 3. Mobile collapses to sticky bottom bar in the thumb zone |
-| Hero | not started | Step 3. Sea Point rig shot (`WhatsApp_Image_20260721_at_11_57_14.jpeg`) + Rotating Text noun. **Client preview milestone** |
+| Header + mobile sticky bar | done | Step 3. `components/Header.tsx` transparent→`ink`+hairline on scroll; `MobileActionBar.tsx` two-button thumb-zone bar (safe-area padded), `sm:hidden`. Plain anchors, JS-optional |
+| Hero | done | Step 3. Sea Point rig shot via `next/image` (`fill priority`) + navy multiply + bottom `ink` scrim; "We clear {rotating noun}" (`RotatingText.tsx`, 4 nouns/2.5s, first-paint static, reduced-motion→opacity); both-services subline; WhatsApp+Call CTAs; 3-claim trust strip. **Client preview milestone.** On branch `step-3-header-hero` |
 | Trust bar | not started | Step 4. Renders only confirmed facts; collapses if null |
 | Services | not started | Step 4. Three cards on `foam`, one commercial line, no pricing |
 | How it works | not started | Step 4. Scroll Stack; must degrade to a plain list below 768px |
@@ -89,6 +102,9 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-24 — Step 3 delivered on branch `step-3-header-hero` (not `origin/main`) because the session run instruction forbids pushing to main. This deviates from CLAUDE.md's "push to origin/main after every section"; the branch is pushed and awaits merge (PR or fast-forward) at review.
+2026-07-24 — Hero headline set to "We clear {rotating noun}" rather than the "cleared today" phrasing CLAUDE.md uses to describe tone: a literal same-day claim is a response-time promise, and response time is a `null` PENDING fact. "We clear …" states the service without a timeframe. Rotating nouns are the four blockage types already in the confirmed jetting summary; trust strip is three tier-1 pamphlet claims. No invented facts.
+2026-07-24 — Step-3 self-QA: production build + lint + `tsc` clean and a served-prod SSR smoke test (headline, first noun, phone, `wa.me`/`tel:` hrefs, hero image all present; no server errors); AA contrast hand-checked (`steel`/`ink` 6.46:1, `surf`/`ink` 6.50:1). Lighthouse-mobile and Playwright 360/768/1440 screenshots deferred (environment + time budget) and flagged as the outstanding step-3 QA before merge.
 2026-07-23 — Processed `/public/images` committed to the repo (≈17 MB) rather than regenerated at build time: a client-preview deploy must be bulletproof, and committing photography in a site repo is normal. Images will be replaced when full-res originals arrive. Output capped at 1280px long edge (sources are ≤1280 and display is capped at 720) so the Lanczos fallback does not fabricate resolution; AVIF+WebP at q80/q58.
 2026-07-23 — Image pipeline built as `scripts/enhance-images.mjs` with Real-ESRGAN opt-in (`REALESRGAN=1`, downloaded into gitignored `scripts/bin`) and a Lanczos fallback so the pipeline always produces output. This environment has no Vulkan, so the run used Lanczos. One shared cool-navy grade unifies a set shot on different phones; Tier 2 is desaturated more than Tier 1; a Tier-3 CCTV bezel-crop hook exists but its file list is curated later (step 5). Content-hash manifest makes reruns cheap.
 2026-07-23 — Logo wave vectorised by potrace-tracing the pamphlet (colour-separated brand/surf masks, connected-component + hole-fill cleanup) rather than hand-drawing — hand attempts read as a blob; the trace is faithful to the actual curl. Generation tooling (potrace `--no-save`, fonttools, Archivo TTF) lives outside the repo; only the two SVGs ship. Method recorded here for reproducibility.
@@ -134,8 +150,13 @@ font). Confirm this is acceptable, or supply the pamphlet's print file / font so
 wordmark can match exactly. Full-res photo originals would also let the pipeline produce
 genuinely upscaled imagery instead of the Lanczos fallback.
 
-**Step 3** — Header (incl. mobile sticky bottom bar) + Hero (Sea Point rig shot, Rotating
-Text noun) + the WhatsApp deep-link plumbing. **This is the client preview milestone —
-stop and get it in front of Mark.**
+**Merge step 3:** work is on branch `step-3-header-hero` (pushed). Review the Hero preview,
+then merge to `main` (PR or fast-forward) so the Vercel dashboard auto-deploys the client
+preview. Recommend running the deferred step-3 self-QA first: Lighthouse mobile (all four ≥
+90) and Playwright screenshots at 360 / 768 / 1440.
 
-_Awaiting owner review of step 2 before starting step 3._
+**Step 4** — Trust bar (renders only confirmed facts, collapses if null) + Services (three
+cards on `foam`, one commercial line, no pricing) + How it works (Scroll Stack, degrades to
+a plain list below 768px).
+
+_Step 3 complete on its branch; awaiting owner review + merge before step 4._
