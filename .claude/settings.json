@@ -6,8 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PROJECT_DIR}/.claude/hooks/build-gate.sh",
-            "args": [],
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/build-gate.sh\"",
             "if": "Bash(git push *)",
             "timeout": 300,
             "statusMessage": "Running build gate..."
