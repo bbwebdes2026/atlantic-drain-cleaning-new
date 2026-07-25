@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-25 (session 4 — build-order step 4 complete)
+> Last updated: 2026-07-25 (session 4 — build-order step 5 complete)
 
 ## Current state (one paragraph)
 
@@ -77,7 +77,34 @@ SSR smoke test on a production server passed (headline, trust bar, all three ser
 cards, both how-it-works DOM trees, phone/email/wa.me links all present; grep for
 `24/7|PIRB|guarantee|warranty|hours:` etc. in the rendered HTML found nothing — no
 unconfirmed fact leaked). Lighthouse/Playwright screenshots remain deferred (same gap as
-step 3). Next is **step 5** (camera inspection signature section).
+step 3).
+
+**Step 5 done — the signature section.** `components/CameraInspection.tsx` (+
+`MonitorFrame.tsx`, `TrueFocus.tsx`) implements CLAUDE.md's "one place boldness is
+spent". Three CCTV monitor stills were curated from the `/assets-raw` 11.56.35–11.56.47
+burst by visually reviewing every frame — the rest are pipe/drain contents (Tier 2); only
+these three show the monitor screen. Crop rects were hand-verified (extract → view →
+adjust) before being locked into `scripts/enhance-images.mjs`'s `TIER3` map, twice: an
+initial pass, then a second tightening pass on two of the three after the graded output
+still showed a thin strip of the monitor's plastic case in-frame. **Found and fixed a
+real bug while doing this**, not just curation: the existing Tier-3 code chained
+`.extract(rect).resize({...})` and then a second unconditional `.resize()` later in the
+pipeline — Sharp only honours the *last* `.resize()` queued on a pipeline, so the
+"normalise to 3:2" step was silently a no-op and had been since it was written in step 2
+(untested until now, because no Tier-3 entry existed to exercise it). Replaced with a
+`to3x2()` helper that trims the curated rect to exact 3:2 via `.extract()` alone before
+the pipeline's one real resize runs; outputs are now genuinely 1280×853 (exactly 3:2),
+verified via `sharp().metadata()`. `MonitorFrame` frames each still in a custom bezel
+component (hairline border + `abyss` fill, not `shadow-lift` — shadows are invisible on
+dark backgrounds per the token rules, a design-system detail the initial draft got wrong
+and this session corrected before shipping). `TrueFocus` pulls the most dramatic still
+(roots intruding through a pipe joint) from `blur(24px)` to sharp on scroll-into-view via
+Framer Motion `whileInView`, `viewport={{ once: true }}`, `prefers-reduced-motion` →
+opacity-only; the two supporting stills render already-sharp so the section has exactly
+one motion moment. Copy reuses the confirmed camera-service summary and the
+"cutting-edge equipment" positioning claim — nothing invented. Build + `tsc --noEmit`
+clean; SSR smoke test passed (heading, section id, all three image slugs, real alt text,
+no unconfirmed facts). Next is **step 6** (proof-of-work gallery + areas served).
 
 ## Section tracker
 
@@ -92,7 +119,7 @@ step 3). Next is **step 5** (camera inspection signature section).
 | Trust bar | done | Step 4. Region + 2 unused positioning claims + phone/email always render; PIRB/insured/years-operating guarded on `business.pending`, invisible until confirmed |
 | Services | done | Step 4. Three cards on `foam` from `data/business.ts` (jetting, camera, diagnosis & reporting) + one commercial-work line, no pricing |
 | How it works | done | Step 4. Hand-rolled Scroll Stack (Framer Motion `useScroll`/`useTransform`, not the literal react.bits source — no web access this session); `md:`-gated, separate plain-list DOM tree for mobile + reduced-motion |
-| Camera inspection (signature) | not started | Step 5. True Focus + monitor-framed Tier 3 stills. The one place boldness is spent |
+| Camera inspection (signature) | done | Step 5. 3 Tier-3 monitor stills curated + hand-verified from `/assets-raw`; True Focus blur-to-sharp on the hero still (reduced-motion → opacity); `MonitorFrame` custom bezel (hairline, not shadow — invisible on dark) |
 | Proof-of-work gallery | not started | Step 6. Contained grid, Tier 2 grade, Gradual Blur on top/bottom edges |
 | Areas served | not started | Step 6. From `data/business.ts`; also the phase-2 `/[suburb]` route map |
 | Booking (WhatsApp form) | not started | Step 7. `wa.me/27823084750`; href built on input change, not in an async click handler |
@@ -127,6 +154,8 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-25 — Fixed a latent bug in `scripts/enhance-images.mjs`'s Tier-3 path found while curating step 5's monitor stills: chaining `.extract(rect).resize({...})` then a second `.resize()` later in the same pipeline is a no-op on the first call — Sharp only keeps the last `.resize()` queued — so the "normalise Tier-3 crops to 3:2" step had silently never worked since it was written in step 2 (untested until a real Tier-3 entry existed). Replaced with a `to3x2()` helper that trims the rect to exact 3:2 via `.extract()` alone; verified 1280×853 output via `sharp().metadata()`.
+2026-07-25 — Curated step 5's three Tier-3 CCTV monitor stills by visually reviewing every frame in the `/assets-raw` 11.56.35–11.56.47 job-photo burst (the rest are pipe/drain contents, already Tier 2). Crop rects were verified by extracting and viewing each candidate before locking into `TIER3`, including a second tightening pass on two of the three after the first pass left a thin sliver of the monitor's plastic case visible in the graded output.
 2026-07-25 — Added a build-gate hook (`.claude/hooks/build-gate.sh`, registered in `.claude/settings.json`) that runs build/typecheck/lint before `git push` and blocks the push on failure. Two bugs found and fixed during live testing (not just wiring): (1) spawning the `.sh` directly caused Windows EFTYPE — fixed by invoking through `bash "..."`; (2) `next lint` with no ESLint config launches an interactive setup wizard that hangs a non-interactive hook, which would have blocked every push forever — fixed by treating an unconfigured linter as absent (skipped, same spirit as `--if-present`) and redirecting stdin from `/dev/null` on every step so nothing can hang on a prompt again. Verified live: a deliberate syntax error caused `git push` to be blocked with the build's real error output; reverting let the same push command through.
 2026-07-25 — Scroll Stack (How it works) and, later, True Focus / Gradual Blur (steps 5–6) are hand-rolled with Framer Motion rather than copy-pasted from react.bits: this session has no web access to fetch the actual react.bits source, so CLAUDE.md's "copy-paste in individually, adapt to tokens" instruction couldn't be followed literally. Built each effect to the documented behaviour instead (scroll-linked pinned stack; blur-to-sharp reveal; edge-masking blur) using only the sanctioned Framer Motion dependency — no new libraries added. Flagged here as a deviation worth swapping for the genuine component if/when it can be fetched.
 2026-07-25 — Step 4 added a third service, "Diagnosis & reporting", to `data/business.ts`. CLAUDE.md's Services spec explicitly names three cards (jetting / camera / diagnosis and reporting) but the data module only had two. Treated as implied by the already-confirmed camera summary ("locates the actual cause inside the pipe, not a guess") rather than a new unconfirmed fact — no specifics (turnaround, report format) were invented.
@@ -178,15 +207,13 @@ font). Confirm this is acceptable, or supply the pamphlet's print file / font so
 wordmark can match exactly. Full-res photo originals would also let the pipeline produce
 genuinely upscaled imagery instead of the Lanczos fallback.
 
-**Deferred self-QA (steps 3 + 4):** Lighthouse mobile (all four categories ≥ 90) and
-Playwright screenshots at 360 / 768 / 1440 have not been run for either step — no browser
-automation available in this environment this session. Build/typecheck/lint and an SSR
-smoke test (grep the rendered HTML for content + absence of unconfirmed facts) stood in
-each time. Run the real Lighthouse/Playwright pass before the client sees this.
+**Deferred self-QA (steps 3–5):** Lighthouse mobile (all four categories ≥ 90) and
+Playwright screenshots at 360 / 768 / 1440 have not been run for any of these steps — no
+browser automation available in this environment this session. Build/typecheck/lint and
+an SSR smoke test (grep the rendered HTML for content + absence of unconfirmed facts)
+stood in each time. Run the real Lighthouse/Playwright pass before the client sees this —
+step 5's scroll-driven motion (Scroll Stack, True Focus) especially needs eyes-on
+verification that a script-based smoke test can't give.
 
-**Step 5** — Camera inspection signature section (True Focus + monitor-framed Tier 3
-stills). Three CCTV monitor stills have been curated from `/assets-raw` for this step
-(see decisions log) but not yet run through the image pipeline.
-
-**Step 6** — Proof-of-work gallery (Gradual Blur on the contained grid's top/bottom edges)
-+ Areas served (rendered from `data/business.ts`).
+**Step 6** — Proof-of-work gallery (Gradual Blur on the contained grid's top/bottom edges,
+using the ~44 remaining Tier-2 images) + Areas served (rendered from `data/business.ts`).

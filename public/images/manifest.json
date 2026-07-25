@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-07-23T17:15:16.721Z",
+  "generated": "2026-07-25T11:06:02.540Z",
   "hero": "hero",
   "entries": {
     "whatsapp-image-2026-07-21-at-11-56-35-1": {
@@ -291,30 +291,6 @@
         "avif": "/images/whatsapp-image-2026-07-21-at-11-56-40.avif"
       }
     },
-    "whatsapp-image-2026-07-21-at-11-56-41-1": {
-      "raw": "WhatsApp Image 2026-07-21 at 11.56.41 (1).jpeg",
-      "hash": "cd217aeda4bb9400",
-      "tier": 2,
-      "upscaler": "lanczos",
-      "width": 960,
-      "height": 1280,
-      "outputs": {
-        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-41-1.webp",
-        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-41-1.avif"
-      }
-    },
-    "whatsapp-image-2026-07-21-at-11-56-41": {
-      "raw": "WhatsApp Image 2026-07-21 at 11.56.41.jpeg",
-      "hash": "66ba5ee08ceb0fdd",
-      "tier": 2,
-      "upscaler": "lanczos",
-      "width": 960,
-      "height": 1280,
-      "outputs": {
-        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-41.webp",
-        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-41.avif"
-      }
-    },
     "whatsapp-image-2026-07-21-at-11-56-42-1": {
       "raw": "WhatsApp Image 2026-07-21 at 11.56.42 (1).jpeg",
       "hash": "4cf6c054a318bb77",
@@ -483,18 +459,6 @@
         "avif": "/images/whatsapp-image-2026-07-21-at-11-56-45-3.avif"
       }
     },
-    "whatsapp-image-2026-07-21-at-11-56-45": {
-      "raw": "WhatsApp Image 2026-07-21 at 11.56.45.jpeg",
-      "hash": "6222dc4a0a4567be",
-      "tier": 2,
-      "upscaler": "lanczos",
-      "width": 960,
-      "height": 1280,
-      "outputs": {
-        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-45.webp",
-        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-45.avif"
-      }
-    },
     "whatsapp-image-2026-07-21-at-11-56-46-1": {
       "raw": "WhatsApp Image 2026-07-21 at 11.56.46 (1).jpeg",
       "hash": "75b1d3c4e31b6d79",
@@ -577,6 +541,42 @@
       "outputs": {
         "webp": "/images/hero.webp",
         "avif": "/images/hero.avif"
+      }
+    },
+    "whatsapp-image-2026-07-21-at-11-56-41-1": {
+      "raw": "WhatsApp Image 2026-07-21 at 11.56.41 (1).jpeg",
+      "hash": "2b1085717f5f7757",
+      "tier": 3,
+      "upscaler": "lanczos",
+      "width": 1280,
+      "height": 853,
+      "outputs": {
+        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-41-1.webp",
+        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-41-1.avif"
+      }
+    },
+    "whatsapp-image-2026-07-21-at-11-56-41": {
+      "raw": "WhatsApp Image 2026-07-21 at 11.56.41.jpeg",
+      "hash": "4acea9080f1eb308",
+      "tier": 3,
+      "upscaler": "lanczos",
+      "width": 1280,
+      "height": 853,
+      "outputs": {
+        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-41.webp",
+        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-41.avif"
+      }
+    },
+    "whatsapp-image-2026-07-21-at-11-56-45": {
+      "raw": "WhatsApp Image 2026-07-21 at 11.56.45.jpeg",
+      "hash": "215cf113c4076a21",
+      "tier": 3,
+      "upscaler": "lanczos",
+      "width": 1280,
+      "height": 853,
+      "outputs": {
+        "webp": "/images/whatsapp-image-2026-07-21-at-11-56-45.webp",
+        "avif": "/images/whatsapp-image-2026-07-21-at-11-56-45.avif"
       }
     }
   }

@@ -44,11 +44,34 @@ const PAMPHLET = "WhatsApp Image 2026-06-16 at 10.27.36.jpeg";
 // The hero is locked to the Sea Point rig shot (Tier 1).
 const HERO = "WhatsApp Image 2026-07-21 at 11.57.14.jpeg";
 
-// Tier 3 = CCTV monitor stills. Curated as the camera section is built (step 5):
-// each entry names the file and the screen rectangle to crop to (bezel removed),
-// output at 3:2. Empty until the monitor shots are identified.
+// Tier 3 = CCTV monitor stills. Curated for the camera section (step 5) by visual
+// review of every frame in the 11.56.35–11.56.47 burst: these are the only three
+// that show the monitor screen itself (the rest are pipe/drain contents, already
+// Tier 2). Each rect is the screen only — the white plastic case bezel and the
+// button/port row below it cropped out — hand-verified by extracting and viewing
+// each candidate crop before locking it in here. The pipeline's own resize step
+// (see below) normalises whatever aspect this rect is to exactly 3:2.
 /** @type {Record<string, {left:number,top:number,width:number,height:number}>} */
-const TIER3 = {};
+const TIER3 = {
+  "WhatsApp Image 2026-07-21 at 11.56.41.jpeg": {
+    left: 30,
+    top: 365,
+    width: 900,
+    height: 545,
+  },
+  "WhatsApp Image 2026-07-21 at 11.56.41 (1).jpeg": {
+    left: 110,
+    top: 390,
+    width: 730,
+    height: 430,
+  },
+  "WhatsApp Image 2026-07-21 at 11.56.45.jpeg": {
+    left: 100,
+    top: 372,
+    width: 740,
+    height: 388,
+  },
+};
 
 const slugify = (name) =>
   path
@@ -59,6 +82,23 @@ const slugify = (name) =>
 
 const tierOf = (file) =>
   file === HERO ? 1 : TIER3[file] ? 3 : 2;
+
+// Trims a curated screen rect to exactly 3:2 (centred), for CLAUDE.md's
+// Tier-3 output ratio. Only ever shrinks — never grows past the curated
+// rect's own bounds — so it can't crop back into the case bezel.
+function to3x2({ left, top, width, height }) {
+  const targetRatio = 3 / 2;
+  const rectRatio = width / height;
+  if (rectRatio > targetRatio) {
+    const newWidth = Math.round(height * targetRatio);
+    return { left: left + Math.round((width - newWidth) / 2), top, width: newWidth, height };
+  }
+  if (rectRatio < targetRatio) {
+    const newHeight = Math.round(width / targetRatio);
+    return { left, top: top + Math.round((height - newHeight) / 2), width, height: newHeight };
+  }
+  return { left, top, width, height };
+}
 
 /* ------------------------------------------------------------------ grade -- */
 // One shared grade; Tier 2 (proof-of-work) is desaturated a little more so the
@@ -168,8 +208,13 @@ async function main() {
     // 2/3. Grade (+ Tier-3 bezel crop), honouring EXIF orientation.
     let pipe = sharp(working, { failOn: "none" }).rotate();
     if (tier === 3) {
-      const c = TIER3[file];
-      pipe = pipe.extract(c).resize({ width: Math.round(c.height * 1.5), height: c.height, fit: "cover" });
+      // Sharp only keeps the *last* .resize() queued on a pipeline — chaining
+      // an .extract() + .resize() here and relying on step 4's final resize
+      // to also apply would silently drop this one. So the crop rect is
+      // trimmed to exactly 3:2 by extract() alone; step 4's single resize
+      // then just scales it down, preserving that ratio.
+      const { left, top, width, height } = to3x2(TIER3[file]);
+      pipe = pipe.extract({ left, top, width, height });
     }
     pipe = grade(pipe, tier);
 
