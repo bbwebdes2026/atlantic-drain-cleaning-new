@@ -1,0 +1,2 @@
+# Shell scripts (e.g. .claude hooks) must stay LF or bash won't run them.
+*.sh text eol=lf
