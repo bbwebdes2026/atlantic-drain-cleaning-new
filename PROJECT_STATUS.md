@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-24 (session 3 — build-order step 3 complete)
+> Last updated: 2026-07-25 (session 4 — build-order step 4 complete)
 
 ## Current state (one paragraph)
 
@@ -49,10 +49,35 @@ scrim, with an eyebrow, the "We clear {rotating noun}" headline (Framer Motion, 
 2.5s, present on first paint, reduced-motion → opacity), a both-services subline, WhatsApp
 + Call CTAs, and a three-claim pamphlet trust strip. All CTAs are real `wa.me`/`tel:`
 hrefs in the SSR HTML (no async click handler — iOS-safe) and work with JS disabled. Build
-+ lint + typecheck clean; SSR smoke test passed with no errors. **Work is on branch
-`step-3-header-hero` (not main)** per the run instruction — merge when reviewed. Not yet
-run: Lighthouse mobile + Playwright 360/768/1440 screenshots (the step-3 self-QA pass).
-Next is **step 4** (Trust bar + Services + How it works). See `docs/STEP-3-SUMMARY.md`.
++ lint + typecheck clean; SSR smoke test passed with no errors. Work landed on branch
+`step-3-header-hero` and is **now merged to `main`** (confirmed step 4 branched from a
+`main` that already has these commits). Not yet run: Lighthouse mobile + Playwright
+360/768/1440 screenshots (the step-3 self-QA pass, still deferred). See
+`docs/STEP-3-SUMMARY.md`.
+
+**Step 4 done.** Trust bar + Services + How it works now sit below the Hero
+(`components/TrustBar.tsx`, `Services.tsx`, `HowItWorks.tsx`; `app/page.tsx` rewired).
+Trust bar renders two unused pamphlet positioning claims ("Specialists in all blocked
+drains…", "Affordable rates") plus phone/email, and is wired with three additional
+guarded items (PIRB registration, insured, years-operating) sourced from
+`business.pending` — those stay invisible today because the fields are `null`, and will
+render automatically the moment Mark confirms them, with no further code changes. A
+third service, "Diagnosis & reporting", was added to `data/business.ts` per CLAUDE.md's
+three-card Services spec (jetting / camera / diagnosis exist as an implication of the
+confirmed camera summary — "locates the actual cause", not a new invented fact); Services
+renders all three from the data module on `foam`, plus one static line acknowledging
+commercial work, no pricing. How it works implements CLAUDE.md's Scroll Stack (Call →
+Camera → Clear) as a hand-rolled Framer Motion `useScroll`/`useTransform` pinned stack —
+react.bits' actual source wasn't fetched (no web access this session), so the effect was
+built to spec instead of copy-pasted; noted as a deviation below. It is gated to `md:`
+and up only, with a completely separate plain-stacked-list DOM tree for mobile and for
+`prefers-reduced-motion` (no JS `matchMedia`, so no hydration mismatch — Tailwind
+responsive display classes decide which tree is visible). Build + `tsc --noEmit` clean;
+SSR smoke test on a production server passed (headline, trust bar, all three service
+cards, both how-it-works DOM trees, phone/email/wa.me links all present; grep for
+`24/7|PIRB|guarantee|warranty|hours:` etc. in the rendered HTML found nothing — no
+unconfirmed fact leaked). Lighthouse/Playwright screenshots remain deferred (same gap as
+step 3). Next is **step 5** (camera inspection signature section).
 
 ## Section tracker
 
@@ -64,9 +89,9 @@ Next is **step 4** (Trust bar + Services + How it works). See `docs/STEP-3-SUMMA
 | Image pipeline | done | Step 2. `scripts/enhance-images.mjs` (`npm run images`): upscale (Real-ESRGAN opt-in via `REALESRGAN=1`, else Lanczos) → shared cool-navy Sharp grade (Tier 2 desaturated more) → Tier-3 bezel crop hook → AVIF/WebP in `/public/images` + content-hash `manifest.json`. Ran over all 48 job photos; hero graded (Tier 1) |
 | Header + mobile sticky bar | done | Step 3. `components/Header.tsx` transparent→`ink`+hairline on scroll; `MobileActionBar.tsx` two-button thumb-zone bar (safe-area padded), `sm:hidden`. Plain anchors, JS-optional |
 | Hero | done | Step 3. Sea Point rig shot via `next/image` (`fill priority`) + navy multiply + bottom `ink` scrim; "We clear {rotating noun}" (`RotatingText.tsx`, 4 nouns/2.5s, first-paint static, reduced-motion→opacity); both-services subline; WhatsApp+Call CTAs; 3-claim trust strip. **Client preview milestone.** On branch `step-3-header-hero` |
-| Trust bar | not started | Step 4. Renders only confirmed facts; collapses if null |
-| Services | not started | Step 4. Three cards on `foam`, one commercial line, no pricing |
-| How it works | not started | Step 4. Scroll Stack; must degrade to a plain list below 768px |
+| Trust bar | done | Step 4. Region + 2 unused positioning claims + phone/email always render; PIRB/insured/years-operating guarded on `business.pending`, invisible until confirmed |
+| Services | done | Step 4. Three cards on `foam` from `data/business.ts` (jetting, camera, diagnosis & reporting) + one commercial-work line, no pricing |
+| How it works | done | Step 4. Hand-rolled Scroll Stack (Framer Motion `useScroll`/`useTransform`, not the literal react.bits source — no web access this session); `md:`-gated, separate plain-list DOM tree for mobile + reduced-motion |
 | Camera inspection (signature) | not started | Step 5. True Focus + monitor-framed Tier 3 stills. The one place boldness is spent |
 | Proof-of-work gallery | not started | Step 6. Contained grid, Tier 2 grade, Gradual Blur on top/bottom edges |
 | Areas served | not started | Step 6. From `data/business.ts`; also the phase-2 `/[suburb]` route map |
@@ -102,7 +127,10 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
-2026-07-24 — Step 3 delivered on branch `step-3-header-hero` (not `origin/main`) because the session run instruction forbids pushing to main. This deviates from CLAUDE.md's "push to origin/main after every section"; the branch is pushed and awaits merge (PR or fast-forward) at review.
+2026-07-25 — Added a build-gate hook (`.claude/hooks/build-gate.sh`, registered in `.claude/settings.json`) that runs build/typecheck/lint before `git push` and blocks the push on failure. Two bugs found and fixed during live testing (not just wiring): (1) spawning the `.sh` directly caused Windows EFTYPE — fixed by invoking through `bash "..."`; (2) `next lint` with no ESLint config launches an interactive setup wizard that hangs a non-interactive hook, which would have blocked every push forever — fixed by treating an unconfigured linter as absent (skipped, same spirit as `--if-present`) and redirecting stdin from `/dev/null` on every step so nothing can hang on a prompt again. Verified live: a deliberate syntax error caused `git push` to be blocked with the build's real error output; reverting let the same push command through.
+2026-07-25 — Scroll Stack (How it works) and, later, True Focus / Gradual Blur (steps 5–6) are hand-rolled with Framer Motion rather than copy-pasted from react.bits: this session has no web access to fetch the actual react.bits source, so CLAUDE.md's "copy-paste in individually, adapt to tokens" instruction couldn't be followed literally. Built each effect to the documented behaviour instead (scroll-linked pinned stack; blur-to-sharp reveal; edge-masking blur) using only the sanctioned Framer Motion dependency — no new libraries added. Flagged here as a deviation worth swapping for the genuine component if/when it can be fetched.
+2026-07-25 — Step 4 added a third service, "Diagnosis & reporting", to `data/business.ts`. CLAUDE.md's Services spec explicitly names three cards (jetting / camera / diagnosis and reporting) but the data module only had two. Treated as implied by the already-confirmed camera summary ("locates the actual cause inside the pipe, not a guess") rather than a new unconfirmed fact — no specifics (turnaround, report format) were invented.
+2026-07-24 — Step 3 delivered on branch `step-3-header-hero` (not `origin/main`) because the session run instruction forbids pushing to main. This deviates from CLAUDE.md's "push to origin/main after every section"; the branch is pushed and merged to `main` since (confirmed present in `main`'s history at the start of the step-4 session).
 2026-07-24 — Hero headline set to "We clear {rotating noun}" rather than the "cleared today" phrasing CLAUDE.md uses to describe tone: a literal same-day claim is a response-time promise, and response time is a `null` PENDING fact. "We clear …" states the service without a timeframe. Rotating nouns are the four blockage types already in the confirmed jetting summary; trust strip is three tier-1 pamphlet claims. No invented facts.
 2026-07-24 — Step-3 self-QA: production build + lint + `tsc` clean and a served-prod SSR smoke test (headline, first noun, phone, `wa.me`/`tel:` hrefs, hero image all present; no server errors); AA contrast hand-checked (`steel`/`ink` 6.46:1, `surf`/`ink` 6.50:1). Lighthouse-mobile and Playwright 360/768/1440 screenshots deferred (environment + time budget) and flagged as the outstanding step-3 QA before merge.
 2026-07-23 — Processed `/public/images` committed to the repo (≈17 MB) rather than regenerated at build time: a client-preview deploy must be bulletproof, and committing photography in a site repo is normal. Images will be replaced when full-res originals arrive. Output capped at 1280px long edge (sources are ≤1280 and display is capped at 720) so the Lanczos fallback does not fabricate resolution; AVIF+WebP at q80/q58.
@@ -150,13 +178,15 @@ font). Confirm this is acceptable, or supply the pamphlet's print file / font so
 wordmark can match exactly. Full-res photo originals would also let the pipeline produce
 genuinely upscaled imagery instead of the Lanczos fallback.
 
-**Merge step 3:** work is on branch `step-3-header-hero` (pushed). Review the Hero preview,
-then merge to `main` (PR or fast-forward) so the Vercel dashboard auto-deploys the client
-preview. Recommend running the deferred step-3 self-QA first: Lighthouse mobile (all four ≥
-90) and Playwright screenshots at 360 / 768 / 1440.
+**Deferred self-QA (steps 3 + 4):** Lighthouse mobile (all four categories ≥ 90) and
+Playwright screenshots at 360 / 768 / 1440 have not been run for either step — no browser
+automation available in this environment this session. Build/typecheck/lint and an SSR
+smoke test (grep the rendered HTML for content + absence of unconfirmed facts) stood in
+each time. Run the real Lighthouse/Playwright pass before the client sees this.
 
-**Step 4** — Trust bar (renders only confirmed facts, collapses if null) + Services (three
-cards on `foam`, one commercial line, no pricing) + How it works (Scroll Stack, degrades to
-a plain list below 768px).
+**Step 5** — Camera inspection signature section (True Focus + monitor-framed Tier 3
+stills). Three CCTV monitor stills have been curated from `/assets-raw` for this step
+(see decisions log) but not yet run through the image pipeline.
 
-_Step 3 complete on its branch; awaiting owner review + merge before step 4._
+**Step 6** — Proof-of-work gallery (Gradual Blur on the contained grid's top/bottom edges)
++ Areas served (rendered from `data/business.ts`).

@@ -123,6 +123,12 @@ export const business: Business = {
       summary:
         "CCTV camera inspection locates the actual cause inside the pipe, not a guess.",
     },
+    {
+      id: "diagnosis",
+      name: "Diagnosis & reporting",
+      summary:
+        "A clear picture of what's causing the blockage and what it will take to put right.",
+    },
   ],
 
   // Atlantic Seaboard suburb list (CLAUDE.md, Areas served). Also the phase-2
