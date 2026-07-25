@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-25 (session 4 — build-order step 5 complete)
+> Last updated: 2026-07-25 (session 4 — build-order step 6 complete)
 
 ## Current state (one paragraph)
 
@@ -104,7 +104,31 @@ opacity-only; the two supporting stills render already-sharp so the section has 
 one motion moment. Copy reuses the confirmed camera-service summary and the
 "cutting-edge equipment" positioning claim — nothing invented. Build + `tsc --noEmit`
 clean; SSR smoke test passed (heading, section id, all three image slugs, real alt text,
-no unconfirmed facts). Next is **step 6** (proof-of-work gallery + areas served).
+no unconfirmed facts).
+
+**Step 6 done.** `components/ProofOfWork.tsx` + `AreasServed.tsx`. Rather than dump all
+~44 remaining Tier-2 photos into the grid, every frame in the burst was reviewed via a
+generated, filename-labelled contact sheet (2 composite images built with `sharp`, read
+directly) so each candidate could be identified with certainty before writing alt text —
+memory-based filename↔content recall across dozens of near-identical burst shots was
+judged too error-prone for something that ships as accessibility text. 12 photos were
+curated for variety (setup, diagnosis, two different extractions, jetting-in-action, two
+macro pipe shots, two debris close-ups, tool-in-use) with real per-image alt text, no
+near-duplicates, and no monitor-screen shots (those belong to the Tier-3 signature
+section, not this grid). Every cell renders at the same 4:5 ratio via `object-cover`
+regardless of the source's native aspect, per CLAUDE.md's "never mix ratios within a
+grid" rule. Gradual Blur is a masked `backdrop-blur` strip (`[mask-image:linear-
+gradient(...)]`, Tailwind v4 arbitrary-property syntax — no new dependency) on the grid's
+top and bottom edges, softening the seam into the section background. Areas Served
+renders straight from `business.areasServed` — all 11 confirmed suburbs — as
+`rounded-card` chips (not full-round: CLAUDE.md reserves that shape for the WhatsApp
+button alone) and is not yet linked to `/[suburb]` routes, since those don't exist in
+phase 1 and a route that 404s is worse than plain text. Build + `tsc --noEmit` clean; SSR
+smoke test passed (heading + section ids present, all 12 curated slugs present, all 11
+suburb names present, no unconfirmed facts). **Steps 4–6 of the build order are now
+complete; the homepage runs Header → Hero → Trust bar → Services → How it works → Camera
+inspection → Proof of work → Areas served.** Next is step 7 (booking form + FAQ +
+footer).
 
 ## Section tracker
 
@@ -120,8 +144,8 @@ no unconfirmed facts). Next is **step 6** (proof-of-work gallery + areas served)
 | Services | done | Step 4. Three cards on `foam` from `data/business.ts` (jetting, camera, diagnosis & reporting) + one commercial-work line, no pricing |
 | How it works | done | Step 4. Hand-rolled Scroll Stack (Framer Motion `useScroll`/`useTransform`, not the literal react.bits source — no web access this session); `md:`-gated, separate plain-list DOM tree for mobile + reduced-motion |
 | Camera inspection (signature) | done | Step 5. 3 Tier-3 monitor stills curated + hand-verified from `/assets-raw`; True Focus blur-to-sharp on the hero still (reduced-motion → opacity); `MonitorFrame` custom bezel (hairline, not shadow — invisible on dark) |
-| Proof-of-work gallery | not started | Step 6. Contained grid, Tier 2 grade, Gradual Blur on top/bottom edges |
-| Areas served | not started | Step 6. From `data/business.ts`; also the phase-2 `/[suburb]` route map |
+| Proof-of-work gallery | done | Step 6. 12 curated Tier-2 photos (of ~44 remaining), uniform 4:5 grid, masked `backdrop-blur` Gradual Blur on top/bottom edges |
+| Areas served | done | Step 6. All 11 suburbs from `data/business.ts` as `rounded-card` chips; not yet linked (no `/[suburb]` routes in phase 1) |
 | Booking (WhatsApp form) | not started | Step 7. `wa.me/27823084750`; href built on input change, not in an async click handler |
 | FAQ | not started | Step 7. Real questions only; carries `FAQPage` schema |
 | Footer | not started | Step 7. NAP formatting must match the future Google Business Profile byte-for-byte |
@@ -154,6 +178,8 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-25 — Curated 12 of the ~44 remaining Tier-2 photos for the proof-of-work gallery rather than rendering all of them. Reviewed the full burst via a generated, filename-labelled contact sheet (built with `sharp`, read directly) instead of relying on memory across dozens of near-identical shots — the risk of mismatching a filename to the wrong photo's alt text was judged worse than the extra step. Excluded near-duplicate frames and every monitor-screen shot that isn't one of the three Tier-3 stills (screen captures aren't proof-of-work photography).
+2026-07-25 — Gradual Blur (proof-of-work gallery edges) implemented as a masked `backdrop-blur` strip via Tailwind v4's `[mask-image:...]` arbitrary-property syntax — no new dependency, consistent with "Framer Motion covers everything this site needs" (this effect isn't scroll-linked, so it doesn't need Framer Motion at all).
 2026-07-25 — Fixed a latent bug in `scripts/enhance-images.mjs`'s Tier-3 path found while curating step 5's monitor stills: chaining `.extract(rect).resize({...})` then a second `.resize()` later in the same pipeline is a no-op on the first call — Sharp only keeps the last `.resize()` queued — so the "normalise Tier-3 crops to 3:2" step had silently never worked since it was written in step 2 (untested until a real Tier-3 entry existed). Replaced with a `to3x2()` helper that trims the rect to exact 3:2 via `.extract()` alone; verified 1280×853 output via `sharp().metadata()`.
 2026-07-25 — Curated step 5's three Tier-3 CCTV monitor stills by visually reviewing every frame in the `/assets-raw` 11.56.35–11.56.47 job-photo burst (the rest are pipe/drain contents, already Tier 2). Crop rects were verified by extracting and viewing each candidate before locking into `TIER3`, including a second tightening pass on two of the three after the first pass left a thin sliver of the monitor's plastic case visible in the graded output.
 2026-07-25 — Added a build-gate hook (`.claude/hooks/build-gate.sh`, registered in `.claude/settings.json`) that runs build/typecheck/lint before `git push` and blocks the push on failure. Two bugs found and fixed during live testing (not just wiring): (1) spawning the `.sh` directly caused Windows EFTYPE — fixed by invoking through `bash "..."`; (2) `next lint` with no ESLint config launches an interactive setup wizard that hangs a non-interactive hook, which would have blocked every push forever — fixed by treating an unconfigured linter as absent (skipped, same spirit as `--if-present`) and redirecting stdin from `/dev/null` on every step so nothing can hang on a prompt again. Verified live: a deliberate syntax error caused `git push` to be blocked with the build's real error output; reverting let the same push command through.
@@ -207,13 +233,15 @@ font). Confirm this is acceptable, or supply the pamphlet's print file / font so
 wordmark can match exactly. Full-res photo originals would also let the pipeline produce
 genuinely upscaled imagery instead of the Lanczos fallback.
 
-**Deferred self-QA (steps 3–5):** Lighthouse mobile (all four categories ≥ 90) and
+**Deferred self-QA (steps 3–6):** Lighthouse mobile (all four categories ≥ 90) and
 Playwright screenshots at 360 / 768 / 1440 have not been run for any of these steps — no
 browser automation available in this environment this session. Build/typecheck/lint and
 an SSR smoke test (grep the rendered HTML for content + absence of unconfirmed facts)
-stood in each time. Run the real Lighthouse/Playwright pass before the client sees this —
-step 5's scroll-driven motion (Scroll Stack, True Focus) especially needs eyes-on
-verification that a script-based smoke test can't give.
+stood in each time. **This is the most important item outstanding on the whole build** —
+run the real Lighthouse/Playwright pass before the client sees any of this. Step 5's
+scroll-driven motion (Scroll Stack, True Focus) and step 6's Gradual Blur especially need
+eyes-on verification that a script-based smoke test can't give.
 
-**Step 6** — Proof-of-work gallery (Gradual Blur on the contained grid's top/bottom edges,
-using the ~44 remaining Tier-2 images) + Areas served (rendered from `data/business.ts`).
+**Step 7** — Booking form (the `wa.me` deep-link form; href built on input change, not in
+an async click handler) + FAQ (real questions only, `FAQPage` schema) + Footer (NAP
+formatting must match the future Google Business Profile byte-for-byte).
