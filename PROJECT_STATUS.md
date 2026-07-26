@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-25 (session 4 — build-order step 6 complete)
+> Last updated: 2026-07-26 (session 5 — post-step-6 polish pass on owner review)
 
 ## Current state (one paragraph)
 
@@ -127,8 +127,36 @@ phase 1 and a route that 404s is worse than plain text. Build + `tsc --noEmit` c
 smoke test passed (heading + section ids present, all 12 curated slugs present, all 11
 suburb names present, no unconfirmed facts). **Steps 4–6 of the build order are now
 complete; the homepage runs Header → Hero → Trust bar → Services → How it works → Camera
-inspection → Proof of work → Areas served.** Next is step 7 (booking form + FAQ +
-footer).
+inspection → Proof of work → Areas served.**
+
+**Post-step-6 polish pass (owner review).** After reviewing steps 4–6 locally, the owner
+flagged three concerns: How It Works' Scroll Stack had too much dead scroll and moved too
+fast; Services read as generic AI-page-builder output; and the page overall didn't feel
+deliberately put together. All three traced to specific, fixable code, not vibes. **How
+it works** (`components/HowItWorks.tsx`): the root cause was that each card owned a fixed
+non-overlapping 1/3 slice of scroll progress, and the enter/exit transforms completed
+within the first 30–45% of that slice, leaving the rest static. Rebuilt with overlapping
+per-card windows (`WINDOW = 0.5`, staggered so each card starts entering before the
+previous one finishes exiting) — a Plan-agent review caught that my first-draft fix
+(widening the transform offsets inside the existing fixed slice) produced non-monotonic
+`useTransform` breakpoints, which would have broken the animation outright; the
+overlapping-window redesign avoids that class of bug entirely and is a more faithful
+"stack" besides. Container height also cut 300vh → 240vh. **Services**
+(`components/Services.tsx`): rebuilt from the icon-chip 3-card grid — recognised as the
+single most common AI-page-builder pattern — into a numbered editorial list reusing the
+01/02/03 numeral motif already established in How It Works, removing the icon SVGs
+entirely. **Section polish**: a Plan-agent review of my proposed "abyss for two premium
+moments" background rule caught that promoting Camera Inspection to `bg-abyss` would make
+its own `MonitorFrame` bezel (also `bg-abyss`) disappear into the section background —
+simplified instead to "`abyss` is Hero-only; every other dark section is `ink`," which
+also removed the arbitrary abyss/ink alternation across HowItWorks/CameraInspection/
+ProofOfWork entirely. Camera Inspection's heading was bumped to `text-40 sm:text-64`
+(every other section is `text-28 sm:text-40`) so it still reads as the signature moment
+now that background colour no longer distinguishes it. Fixed one real spacing bug
+(`AreasServed` was `mt-10` between heading and content where every sibling section uses
+`mt-12`) and softened the density jump from Hero into TrustBar (`py-4` → `py-5`). Build +
+`tsc --noEmit` clean; SSR smoke test passed; visually confirmed on the dev server before
+push. Next is step 7 (booking form + FAQ + footer).
 
 ## Section tracker
 
@@ -178,6 +206,9 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-26 — Established a real rule for dark-section backgrounds instead of decorative alternation: `abyss` is reserved for the Hero only (its existing scrim usage); every other dark section (TrustBar, HowItWorks, CameraInspection, ProofOfWork, AreasServed) uses `ink` uniformly. A Plan-agent review caught that my first idea — reserving `abyss` for Hero *and* Camera Inspection as "the two premium moments" — would have broken Camera Inspection's own `MonitorFrame` component, which is itself `bg-abyss`; the section's "signature" status is now carried by an elevated heading size (`text-40 sm:text-64` vs every other section's `text-28 sm:text-40`) instead of background colour.
+2026-07-26 — Rebuilt HowItWorks' Scroll Stack timing around overlapping per-card scroll windows (`WINDOW = 0.5`, staggered starts) rather than three fixed non-overlapping 1/3 slices, after owner feedback that it had dead scroll space and moved too fast. A Plan-agent review caught that my first-draft fix — widening the transform offsets inside the existing fixed slices — produced non-monotonic `useTransform` breakpoints (would have broken the animation outright, not just looked wrong); the overlapping-window redesign sidesteps that failure mode by construction and is a more faithful "stack" effect besides.
+2026-07-26 — Rebuilt Services from an icon-chip 3-card grid into a numbered editorial list (reusing HowItWorks' 01/02/03 numeral motif) after owner feedback that the icon-chip-grid pattern read as generic AI-page-builder output. Confirmed the direction with the owner via a side-by-side preview before implementing, rather than picking unilaterally — it's a visual-identity call, not a technical one.
 2026-07-25 — Curated 12 of the ~44 remaining Tier-2 photos for the proof-of-work gallery rather than rendering all of them. Reviewed the full burst via a generated, filename-labelled contact sheet (built with `sharp`, read directly) instead of relying on memory across dozens of near-identical shots — the risk of mismatching a filename to the wrong photo's alt text was judged worse than the extra step. Excluded near-duplicate frames and every monitor-screen shot that isn't one of the three Tier-3 stills (screen captures aren't proof-of-work photography).
 2026-07-25 — Gradual Blur (proof-of-work gallery edges) implemented as a masked `backdrop-blur` strip via Tailwind v4's `[mask-image:...]` arbitrary-property syntax — no new dependency, consistent with "Framer Motion covers everything this site needs" (this effect isn't scroll-linked, so it doesn't need Framer Motion at all).
 2026-07-25 — Fixed a latent bug in `scripts/enhance-images.mjs`'s Tier-3 path found while curating step 5's monitor stills: chaining `.extract(rect).resize({...})` then a second `.resize()` later in the same pipeline is a no-op on the first call — Sharp only keeps the last `.resize()` queued — so the "normalise Tier-3 crops to 3:2" step had silently never worked since it was written in step 2 (untested until a real Tier-3 entry existed). Replaced with a `to3x2()` helper that trims the rect to exact 3:2 via `.extract()` alone; verified 1280×853 output via `sharp().metadata()`.

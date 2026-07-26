@@ -50,7 +50,7 @@ export function TrustBar() {
 
   return (
     <div className="border-y border-hairline-dark bg-ink">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-4 font-body text-14 text-steel sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-6 gap-y-2 px-4 py-5 font-body text-14 text-steel sm:px-6">
         {items.map((item, i) => (
           <span key={item.key} className="flex items-center gap-2">
             {i > 0 && (

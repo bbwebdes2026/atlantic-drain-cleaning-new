@@ -67,7 +67,7 @@ const GALLERY = [
 
 export function ProofOfWork() {
   return (
-    <section id="proof-of-work" className="bg-abyss py-24 sm:py-40">
+    <section id="proof-of-work" className="bg-ink py-24 sm:py-40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="eyebrow text-surf">Proof of work</p>
         <h2 className="mt-3 max-w-2xl font-display text-28 font-bold tracking-h2 text-foam sm:text-40">

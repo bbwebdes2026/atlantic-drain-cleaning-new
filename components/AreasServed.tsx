@@ -18,7 +18,7 @@ export function AreasServed() {
           Across the Atlantic Seaboard.
         </h2>
 
-        <ul className="mt-10 flex flex-wrap gap-3">
+        <ul className="mt-12 flex flex-wrap gap-3">
           {business.areasServed.map((suburb) => (
             <li
               key={suburb.slug}

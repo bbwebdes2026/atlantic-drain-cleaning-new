@@ -11,13 +11,19 @@ import { TrueFocus } from "./TrueFocus";
  *
  * Copy reuses the confirmed camera-service summary and the "cutting-edge
  * equipment" positioning claim from data/business.ts — nothing invented.
+ *
+ * Stays on `bg-ink`, not `bg-abyss`: `MonitorFrame` is itself `bg-abyss`, so
+ * an `abyss` section here would make the bezel disappear into its own
+ * background. `abyss` is reserved for the Hero alone; this section reads as
+ * the signature moment through its elevated heading size (text-40/64,
+ * above every other section's text-28/40) instead.
  */
 export function CameraInspection() {
   return (
     <section id="camera-inspection" className="bg-ink py-24 sm:py-40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="eyebrow text-surf">Camera inspection</p>
-        <h2 className="mt-3 max-w-2xl font-display text-28 font-bold tracking-h2 text-foam sm:text-40">
+        <h2 className="mt-3 max-w-2xl font-display text-40 font-bold tracking-h2 text-foam sm:text-64">
           We see the actual cause — not a guess.
         </h2>
         <p className="mt-4 max-w-xl text-16 text-mist">

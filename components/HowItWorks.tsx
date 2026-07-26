@@ -70,24 +70,34 @@ function StackCard({
   title: string;
   body: string;
 }) {
-  const start = index / total;
-  const end = (index + 1) / total;
   const isLast = index === total - 1;
+
+  // Overlapping windows, not a fixed non-overlapping 1/N slice: each card's
+  // own enter->hold->exit cycle spans half of total scroll progress, staggered
+  // so the next card is already entering while the previous one is still
+  // settling. That overlap is what makes this read as an actual stack rather
+  // than one card at a time with dead scroll in between.
+  const WINDOW = 0.5;
+  const step = total > 1 ? (1 - WINDOW) / (total - 1) : 1;
+  const start = index * step;
+  const end = start + WINDOW;
+  const enterEnd = start + WINDOW * 0.35;
+  const exitStart = start + WINDOW * 0.75;
 
   const y = useTransform(
     progress,
-    [start, start + 0.15, end - 0.15, end],
+    [start, enterEnd, exitStart, end],
     [80, 0, 0, -24],
   );
   const opacity = useTransform(
     progress,
-    [start, start + 0.1, end - 0.1, end],
+    [start, enterEnd, exitStart, end],
     [0, 1, 1, isLast ? 1 : 0.4],
   );
   const scale = useTransform(
     progress,
-    [start, start + 0.1, end],
-    [0.96, 1, isLast ? 1 : 0.94],
+    [start, enterEnd, end],
+    [0.96, 1, isLast ? 1 : 0.92],
   );
 
   return (
@@ -115,7 +125,7 @@ export function HowItWorks() {
   });
 
   return (
-    <section id="how-it-works" className="bg-abyss py-24 sm:py-40">
+    <section id="how-it-works" className="bg-ink py-24 sm:py-40">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="eyebrow text-surf">How it works</p>
         <h2 className="mt-3 font-display text-28 font-bold tracking-h2 text-foam sm:text-40">
@@ -127,7 +137,7 @@ export function HowItWorks() {
         <PlainList />
       ) : (
         <>
-          <div ref={ref} className="relative mt-12 hidden h-[300vh] md:block">
+          <div ref={ref} className="relative mt-12 hidden h-[240vh] md:block">
             <div className="sticky top-0 h-screen overflow-hidden">
               {STEPS.map((s, i) => (
                 <StackCard
