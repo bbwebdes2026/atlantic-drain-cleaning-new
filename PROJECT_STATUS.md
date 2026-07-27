@@ -23,7 +23,9 @@ one-time manual step; **preview URL to be pasted in below once live**. Next is s
 (logo vectorisation + image pipeline). The near-term deadline is the Hero client preview
 (step 3), so steps 2–3 stay tight.
 
-**Preview URL:** _pending — awaiting Vercel dashboard import of `bbwebdes2026/atlantic-drain-cleaning-new`._
+**Preview URL:** **https://atlantic-drain-cleaning-new.vercel.app/** — live, confirmed
+2026-07-27 serving the current `main` (all 11 sections, correct `wa.me` number, OG/schema
+metadata present). This is the URL to show Mark.
 
 **Step 2 done.** The logo is vectorised: `public/logo-mark.svg` (wave) and
 `public/logo-full.svg` (horizontal lockup). The wave was produced by potrace-tracing the
@@ -250,7 +252,7 @@ URL / DNS steps, neither of which this session touched.
 | Section | Status | Notes |
 |---|---|---|
 | Scaffold / tokens / fonts | done | Step 1. Next.js 15.5.21 App Router + TS + Tailwind v4; all nine colour tokens, 4/8/12 radius, both shadows, dark/light hairlines; Archivo + IBM Plex Sans via `next/font`; type scale + hero clamp + eyebrow; `data/business.ts` with PENDING fields `null`; reduced-motion + surf focus rings in base layer. Build compiles clean |
-| Vercel preview deploy | in progress | Step 1. **Dashboard Git integration** (client's choice) — repo pushed; awaiting one-time import at vercel.com/new + preview URL. Preview URL only — **do not touch DNS** (client email runs on the domain) |
+| Vercel preview deploy | done | Step 1. **Dashboard Git integration** (client's choice) — live at https://atlantic-drain-cleaning-new.vercel.app/. Preview URL only — **do not touch DNS** (client email runs on the domain) |
 | Logo vectorisation | done | Step 2. Wave = potrace trace of the pamphlet mark (faithful) in the two brand blues + white inner lines; wordmark = Archivo glyph outlines (site display face; pamphlet font unidentifiable from the compressed raster). `public/logo-full.svg` (lockup) + `public/logo-mark.svg` (wave). Awaiting owner review against the pamphlet |
 | Image pipeline | done | Step 2. `scripts/enhance-images.mjs` (`npm run images`): upscale (Real-ESRGAN opt-in via `REALESRGAN=1`, else Lanczos) → shared cool-navy Sharp grade (Tier 2 desaturated more) → Tier-3 bezel crop hook → AVIF/WebP in `/public/images` + content-hash `manifest.json`. Ran over all 48 job photos; hero graded (Tier 1) |
 | Header + mobile sticky bar | done | Step 3. `components/Header.tsx` transparent→`ink`+hairline on scroll; `MobileActionBar.tsx` two-button thumb-zone bar (safe-area padded), `sm:hidden`. Plain anchors, JS-optional |
@@ -402,9 +404,6 @@ parentheses. No field can disable the WhatsApp anchor.
 structure (Header through Footer), and the previously-deferred self-QA pass (Lighthouse +
 Playwright, see Quality gates above) has now actually run and passed. What's left is
 owner input and the two things this session deliberately didn't touch:
-
-**Still open from step 1:** paste the live `*.vercel.app` preview URL into "Current state"
-once the Vercel dashboard import completes.
 
 **Owner review of step 2:** check `public/logo-full.svg` and `logo-mark.svg` against the
 pamphlet — the wave is a faithful trace; the wordmark uses Archivo (not the pamphlet
