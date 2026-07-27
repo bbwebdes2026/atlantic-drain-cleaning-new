@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-27 (session 6 — step 7 booking/FAQ/footer)
+> Last updated: 2026-07-27 (session 6 — steps 7-8 + full self-QA pass, build complete)
 
 ## Current state (one paragraph)
 
@@ -182,10 +182,68 @@ Build + `tsc --noEmit` clean; SSR smoke test on a production server passed (book
 fields, all four FAQ questions, `FAQPage` schema, footer NAP fields, all 11 suburbs, both
 `wa.me`/`tel:` links present; grep for `24/7|PIRB|guarantee|warranty|hours:|pricing`
 patterns found nothing). Committed and pushed (`895361f`). **All 11 CLAUDE.md page
-structure sections are now built.** Next is step 8 (SEO/schema/OpenGraph), then the
-long-deferred Lighthouse/Playwright QA pass, both being run in this same session since
-Playwright and Lighthouse CLIs are available here (a first — every prior session lacked
-browser automation).
+structure sections are now built.**
+
+**Step 8 done.** `data/schema.ts` (`LocalBusiness`/`Plumber` JSON-LD, wired into
+`app/layout.tsx`), full OpenGraph + Twitter card metadata, canonical URL, `app/sitemap.ts`,
+`app/robots.ts`, `app/icon.svg` favicon. The schema deliberately omits two fields rather
+than filling them with placeholders: `openingHoursSpecification` (still `null` in
+`business.pending`) and `sameAs` (no Google Business Profile exists yet — see Blockers).
+Added `business.url` (`https://atlanticdraincleaning.co.za`) as the canonical/OG domain —
+this is project infrastructure already named throughout CLAUDE.md, not a client fact
+requiring confirmation, so it doesn't get the PENDING treatment. New
+`scripts/generate-og-image.mjs` (`npm run og`) composites the graded Sea Point hero shot
+with the lockup into `public/og-image.jpg` (1200×630), per CLAUDE.md's explicit "the Sea
+Point rig shot with the lockup, not a logo-on-navy card." **Found and fixed a real bug
+while building the OG image**: `logo-full.svg`'s wordmark paths (`ATLANTIC`/`Drain`/
+`Cleaning`) were filled `#0B1E2D` (ink) from step 2, when the full lockup had never
+actually been rendered anywhere in the UI yet — the moment it landed in the Footer (also
+`bg-ink`, step 7) and the OG card (dark scrim), the wordmark would have been invisible,
+ink-on-ink. Recoloured the three wordmark path groups to `foam`; the wave itself was
+already correctly coloured. Build + `tsc --noEmit` clean; SSR-verified canonical, OG
+tags (including the fully-resolved absolute OG image URL via `metadataBase`), Twitter
+card, `Plumber` schema, and `/robots.txt` + `/sitemap.xml` + `/icon.svg` all serving
+correctly. Committed and pushed (`ecdc94f`).
+
+**Full self-QA pass — done, and the most substantial finding of the session.**
+Every prior session recorded "Lighthouse/Playwright deferred, no browser automation
+available." This session had both CLIs working (Playwright's Chromium was already cached
+from a prior attempt), so `playwright` was added as a real devDependency and the deferred
+QA from steps 3–8 finally ran in full:
+
+- **Lighthouse mobile, final scores: Performance 93, Accessibility 100, Best Practices
+  100, SEO 100** — all four clear the ≥90 floor. LCP 3.1s / CLS 0 / TBT 20-30ms.
+- **A real WCAG AA failure was caught and fixed**: Services' decorative `01/02/03`
+  numerals used `text-brand/20`, measuring 1.3:1 against `foam` (need 3:1 for large bold
+  text). Recoloured to `text-slate/70` (~3.3:1) — `slate` is literally the token CLAUDE.md
+  designates for "muted text on light," so this is a correction toward the existing
+  system, not a new pattern. `aria-hidden="true"` added too (the numeral is decorative;
+  the service name already carries the content) — note for the record that `aria-hidden`
+  does **not** exempt an element from the contrast check, since low-vision sighted users
+  without a screen reader still see the pixels; only an actual colour fix satisfies it.
+- **A significant false alarm, run down rather than assumed**: full-page Playwright
+  screenshots initially showed How It Works as a large blank gap, the camera-inspection
+  monitor stills as solid black, and the proof-of-work gallery as empty. Investigated
+  rather than "fixed" blind — `fullPage: true` screenshots resize the viewport to the
+  full document height without ever actually scrolling, so lazy-loaded images never
+  trigger and scroll-linked motion (How It Works' `useScroll`) is frozen at its
+  pre-scroll state. Verified this directly: sampling `getComputedStyle` opacity on the
+  How It Works cards through a real, fine-grained incremental scroll (40 steps, real
+  `mouse.wheel` events) showed the overlapping enter/hold/exit transitions working
+  exactly as designed, ending with the last card correctly held at full opacity once the
+  pinned container's own scroll range is exhausted. No code change was needed for this
+  one — `scripts/qa-screenshot.mjs` now does a real pre-scroll pass before capturing so
+  future full-page screenshots don't reproduce the same false alarm.
+- SSR-grepped the production build for unconfirmed-fact patterns (`24/7`, `PIRB`,
+  `guarantee`, `warranty`, `hours:`, `price`, response-time phrasing, `testimonial`) —
+  zero matches across the whole page.
+- Manually reviewed close-up screenshots of Services, Camera Inspection, Areas Served,
+  Booking, FAQ and Footer at 1440px, plus full-page captures at 360/768/1440 — all read
+  cleanly; the Footer wordmark fix and Services numeral fix are both visually confirmed.
+
+Committed and pushed (`c0e9681`). **The build-order's 8 steps are now all complete.**
+Outstanding QA-grade items are external to code (see Blockers) and the Vercel preview
+URL / DNS steps, neither of which this session touched.
 
 ## Section tracker
 
@@ -206,26 +264,27 @@ browser automation).
 | Booking (WhatsApp form) | done | Step 7. Three controlled fields compose `waHref()` on every render; href always real at click time; validation is a hint, never a blocker |
 | FAQ | done | Step 7. 4 real questions (jetting, camera inspection, recurring blockages, quote); `<details>`, zero-JS; inline `FAQPage` JSON-LD |
 | Footer | done | Step 7. Phone/email/areas served straight from `business.ts`, no reformatting; "Waves of Change" repeated as text next to the lockup SVG |
-| SEO / schema / OpenGraph | not started | Step 8. `LocalBusiness`/`Plumber` JSON-LD, **no `openingHoursSpecification` until hours confirmed** |
+| SEO / schema / OpenGraph | done | Step 8. `Plumber` JSON-LD, OG/Twitter tags, canonical, sitemap.ts, robots.ts, icon.svg; `openingHoursSpecification` + `sameAs` deliberately omitted, not empty |
 
 Status meanings: **done** = built and self-QA passed; **reviewed** = owner approved at checkpoint.
 
 ## Quality gates (latest run)
 
-No runs yet — first Lighthouse/axe/Playwright pass is due at the end of step 3.
+First real run — session 6, 2026-07-27, against a local production build
+(`npm run build && npm run start`) via Playwright + Lighthouse CLIs.
 
 | Gate | Result | Date |
 |---|---|---|
-| Lighthouse — Performance | — | — |
-| Lighthouse — Accessibility | — | — |
-| Lighthouse — Best Practices | — | — |
-| Lighthouse — SEO | — | — |
-| WCAG AA contrast | — | — |
-| Responsive 360 / 768 / 1440 | — | — |
-| WhatsApp deep link (incl. real iPhone) | — | — |
-| Images WebP/AVIF + lazy | — | — |
-| JSON-LD + OpenGraph valid | — | — |
-| No unconfirmed facts in UI | — | — |
+| Lighthouse — Performance | 93 | 2026-07-27 |
+| Lighthouse — Accessibility | 100 | 2026-07-27 |
+| Lighthouse — Best Practices | 100 | 2026-07-27 |
+| Lighthouse — SEO | 100 | 2026-07-27 |
+| WCAG AA contrast | Pass (Services numeral fixed; see decisions log) | 2026-07-27 |
+| Responsive 360 / 768 / 1440 | Pass — Playwright full-page + section screenshots reviewed | 2026-07-27 |
+| WhatsApp deep link (incl. real iPhone) | Pass in code review + SSR (href built on input change); **real-iPhone tap test still not done — no device in this environment** | 2026-07-27 |
+| Images WebP/AVIF + lazy | Pass — verified via `<img>` `naturalWidth`/`complete` after a real scroll pass | 2026-07-27 |
+| JSON-LD + OpenGraph valid | Pass — `Plumber` + `FAQPage` schema, OG/Twitter tags, canonical all present and correctly resolved in SSR HTML | 2026-07-27 |
+| No unconfirmed facts in UI | Pass — grepped production HTML for hours/PIRB/guarantee/warranty/price/response-time/testimonial patterns, zero matches | 2026-07-27 |
 
 ## In progress
 
@@ -235,6 +294,49 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-27 — Added `playwright` as a real devDependency (matching the Chromium build
+already cached in this environment from an earlier attempt) instead of relying on `npx`
+per-run, which fails to resolve the package for `import` inside a plain script. This
+finally makes CLAUDE.md's Self-QA loop ("Playwright screenshots... Lighthouse...")
+actually runnable in-session rather than perpetually deferred, as every prior session's
+status notes record. `scripts/qa-screenshot.mjs` is the reusable entry point.
+2026-07-27 — Fixed a real WCAG AA contrast failure caught by Lighthouse: Services'
+decorative `01/02/03` numerals (`text-brand/20`) measured 1.3:1 against `foam`, below the
+3:1 large-text minimum. Recoloured to `text-slate/70` (~3.3:1) rather than inventing a new
+faint-numeral treatment — `slate` is already CLAUDE.md's designated "muted text on light"
+token, so this is a correction toward the existing system. Also learned and recorded here
+for future reference: `aria-hidden="true"` does NOT exempt an element from Lighthouse/
+axe's colour-contrast check, because low-vision sighted users without a screen reader
+still see the rendered pixels — aria-hidden only affects the accessibility tree, not
+visual contrast obligations.
+2026-07-27 — Diagnosed, rather than blindly "fixed," an apparent bug where full-page
+Playwright screenshots showed How It Works as a blank gap and the camera-inspection/
+proof-of-work images as black/empty. Root cause: `page.screenshot({fullPage:true})`
+resizes the viewport to the full document height without performing a real scroll, so
+lazy-loaded images never trigger and `useScroll`-driven motion is frozen at its
+pre-scroll (progress=0) state — a capture-technique artifact, not a site defect.
+Confirmed by sampling `getComputedStyle` through 40 real incremental `mouse.wheel` steps,
+which showed the How It Works overlapping enter/hold/exit transitions working exactly as
+designed. No code changes were made to HowItWorks.tsx; `qa-screenshot.mjs` instead does a
+real pre-scroll pass before capturing so this doesn't reproduce as a false alarm again.
+2026-07-27 — Added `business.url` (`https://atlanticdraincleaning.co.za`) to
+`data/business.ts` as the canonical/OG/schema domain, ahead of DNS cutover. Treated as
+project infrastructure rather than a PENDING client fact — CLAUDE.md already names this
+exact domain throughout as the deployment target and states the client's own email
+already runs on it — not a marketing claim requiring Mark's confirmation the way hours or
+pricing would be.
+2026-07-27 — `openingHoursSpecification` and `sameAs` are omitted entirely from the
+`LocalBusiness`/`Plumber` JSON-LD (`data/schema.ts`), not present-but-empty. Trading hours
+are still `null` in `business.pending`; no Google Business Profile exists yet for
+`sameAs` to point to. Matches CLAUDE.md's stated rule verbatim.
+2026-07-27 — Fixed a real, previously-undetected bug in `public/logo-full.svg`: the
+wordmark path groups (`ATLANTIC`/`Drain`/`Cleaning`) were filled `#0B1E2D` (ink) since
+step 2, because the full lockup had never actually been rendered anywhere in the built UI
+until this session's Footer (step 7) and OG image (step 8) — both dark (`bg-ink` /
+navy-scrimmed), which would have made the wordmark invisible, ink-on-ink. Recoloured the
+three wordmark groups to `foam`; the wave paths were already correctly brand/surf. A
+concrete example of why "no component had rendered this asset yet" is exactly the kind of
+gap a deferred visual QA pass exists to catch.
 2026-07-27 — FAQ's `FAQPage` JSON-LD is generated inline in `components/FAQ.tsx` from the
 same `FAQS` array that renders the visible copy, rather than deferred to step 8's
 `data/schema.ts` module. CLAUDE.md lists "carries FAQPage schema" as part of the FAQ
@@ -296,6 +398,11 @@ parentheses. No field can disable the WhatsApp anchor.
 
 ## Next up
 
+**All 8 build-order steps are complete.** The homepage runs the full CLAUDE.md page
+structure (Header through Footer), and the previously-deferred self-QA pass (Lighthouse +
+Playwright, see Quality gates above) has now actually run and passed. What's left is
+owner input and the two things this session deliberately didn't touch:
+
 **Still open from step 1:** paste the live `*.vercel.app` preview URL into "Current state"
 once the Vercel dashboard import completes.
 
@@ -305,15 +412,16 @@ font). Confirm this is acceptable, or supply the pamphlet's print file / font so
 wordmark can match exactly. Full-res photo originals would also let the pipeline produce
 genuinely upscaled imagery instead of the Lanczos fallback.
 
-**Deferred self-QA (steps 3–6):** Lighthouse mobile (all four categories ≥ 90) and
-Playwright screenshots at 360 / 768 / 1440 have not been run for any of these steps — no
-browser automation available in this environment this session. Build/typecheck/lint and
-an SSR smoke test (grep the rendered HTML for content + absence of unconfirmed facts)
-stood in each time. **This is the most important item outstanding on the whole build** —
-run the real Lighthouse/Playwright pass before the client sees any of this. Step 5's
-scroll-driven motion (Scroll Stack, True Focus) and step 6's Gradual Blur especially need
-eyes-on verification that a script-based smoke test can't give.
+**Not done this session, flagged for a follow-up pass:**
+- Real-iPhone tap test of the WhatsApp deep link (both the header/mobile-bar zero-JS
+  links and the new booking form) — no physical device in this environment. Everything
+  checkable in code and via SSR (href built on input change, correct `wa.me` encoding,
+  no leading zero) has been verified; the one thing that can't be verified here is
+  Safari's actual popup-blocker behaviour on a real device.
+- The Vercel dashboard import (step 1) and any DNS work remain untouched, per
+  instruction — DNS specifically must wait for registrar access confirmation (see
+  Blockers) since the client's email runs on the domain.
 
-**Step 7** — Booking form (the `wa.me` deep-link form; href built on input change, not in
-an async click handler) + FAQ (real questions only, `FAQPage` schema) + Footer (NAP
-formatting must match the future Google Business Profile byte-for-byte).
+**Everything else is now owner input, not code:** trading hours, PIRB/insurance, exact
+years-operating figure, and the Google Business Profile (see Blockers below) are the
+remaining gates before this can go from "technically complete" to "ready to launch."
