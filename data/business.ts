@@ -79,6 +79,14 @@ export interface Business {
   readonly owner: string;
   readonly phone: Phone;
   readonly email: string;
+  /**
+   * The eventual production domain. Not a client-confirmed marketing claim
+   * like the rest of this module — it's project infrastructure, already
+   * documented in CLAUDE.md as almost certainly registered (the client's
+   * email runs on it). Used for canonical/OG/schema URLs ahead of the DNS
+   * cutover; the live deploy stays on the Vercel preview URL until then.
+   */
+  readonly url: string;
   /** Broad region the business serves, as printed on the pamphlet. */
   readonly region: string;
   readonly services: readonly Service[];
@@ -108,6 +116,7 @@ export const business: Business = {
   },
 
   email: "mark@atlanticdraincleaning.co.za",
+  url: "https://atlanticdraincleaning.co.za",
   region: "Atlantic Seaboard, Cape Town",
 
   services: [
