@@ -42,13 +42,13 @@ function PlainList() {
       {STEPS.map((s) => (
         <div
           key={s.n}
-          className="rounded-card border border-hairline-dark bg-ink/60 p-8"
+          className="rounded-card border border-hairline-dark bg-ink/60 p-8 sm:p-10"
         >
           <span className="eyebrow text-surf">{s.n}</span>
-          <h3 className="mt-3 font-display text-22 font-bold text-foam">
+          <h3 className="mt-3 font-display text-28 font-bold text-foam">
             {s.title}
           </h3>
-          <p className="mt-3 text-16 text-mist">{s.body}</p>
+          <p className="mt-3 text-18 text-mist">{s.body}</p>
         </div>
       ))}
     </div>
@@ -105,12 +105,12 @@ function StackCard({
       style={{ y, opacity, scale, zIndex: index }}
       className="absolute inset-0 flex items-center justify-center px-4"
     >
-      <div className="w-full max-w-xl rounded-card border border-hairline-dark bg-ink/90 p-8 shadow-lift backdrop-blur sm:p-10">
+      <div className="w-full max-w-2xl rounded-card border border-hairline-dark bg-ink/90 p-10 shadow-lift backdrop-blur sm:p-14">
         <span className="eyebrow text-surf">{n}</span>
-        <h3 className="mt-3 font-display text-28 font-bold tracking-h2 text-foam">
+        <h3 className="mt-4 font-display text-40 font-bold tracking-h2 text-foam sm:text-64">
           {title}
         </h3>
-        <p className="mt-3 text-16 text-mist">{body}</p>
+        <p className="mt-4 text-18 text-mist">{body}</p>
       </div>
     </motion.div>
   );
@@ -137,7 +137,7 @@ export function HowItWorks() {
         <PlainList />
       ) : (
         <>
-          <div ref={ref} className="relative mt-12 hidden h-[240vh] md:block">
+          <div ref={ref} className="relative mt-12 hidden h-[360vh] md:block">
             <div className="sticky top-0 h-screen overflow-hidden">
               {STEPS.map((s, i) => (
                 <StackCard
