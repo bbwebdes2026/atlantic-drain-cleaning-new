@@ -1,7 +1,7 @@
 # PROJECT STATUS — Atlantic Drain Cleaning
 
 > Maintained by Claude Code. Updated at the end of every working block.
-> Last updated: 2026-07-26 (session 5 — post-step-6 polish pass on owner review)
+> Last updated: 2026-07-27 (session 6 — step 7 booking/FAQ/footer)
 
 ## Current state (one paragraph)
 
@@ -156,7 +156,36 @@ now that background colour no longer distinguishes it. Fixed one real spacing bu
 (`AreasServed` was `mt-10` between heading and content where every sibling section uses
 `mt-12`) and softened the density jump from Hero into TrustBar (`py-4` → `py-5`). Build +
 `tsc --noEmit` clean; SSR smoke test passed; visually confirmed on the dev server before
-push. Next is step 7 (booking form + FAQ + footer).
+push.
+
+**Step 7 done.** `components/Booking.tsx`, `FAQ.tsx`, `Footer.tsx`; `app/page.tsx` rewired
+to the full 11-section CLAUDE.md page structure. **Booking** is a client component with
+three controlled fields (name, mobile, description) composing the exact prefill pattern
+Mark asked for — `Hi Mark, it's {name} ({mobile}). {description}` — via `waHref()`
+recomputed on every render, so the anchor's `href` is a real, fully-encoded URL at click
+time rather than something built inside an async handler (the iOS Safari popup-blocker
+trap CLAUDE.md calls out by name). Empty fields degrade gracefully (the greeting and
+description clauses are only added when non-empty) instead of shipping a prefill with
+blank parens. Validation is a single inline hint, never a disabled control — the WhatsApp
+anchor is always live. **FAQ** answers restate already-confirmed service summaries
+(jetting, camera inspection) or general non-company-specific plumbing knowledge (why
+blockages recur); nothing about hours, pricing, guarantees or response time. Built as
+native `<details>/<summary>` so the disclosure works with zero JS. `FAQPage` JSON-LD is
+generated from the same question array inline in the component (not deferred to step 8's
+schema module) so visible copy and schema can never drift apart. **Footer** renders
+phone/email/areas served straight from `business.ts` with zero reformatting — deliberate,
+since NAP consistency with the eventual Google Business Profile is a real local-SEO
+factor and this is the block most likely to get copied into a directory listing.
+`logo-full.svg` already carries "Waves of Change" in the lockup; it's repeated as plain
+text in the credit line per CLAUDE.md's explicit "belongs in the lockup and the footer."
+Build + `tsc --noEmit` clean; SSR smoke test on a production server passed (booking form
+fields, all four FAQ questions, `FAQPage` schema, footer NAP fields, all 11 suburbs, both
+`wa.me`/`tel:` links present; grep for `24/7|PIRB|guarantee|warranty|hours:|pricing`
+patterns found nothing). Committed and pushed (`895361f`). **All 11 CLAUDE.md page
+structure sections are now built.** Next is step 8 (SEO/schema/OpenGraph), then the
+long-deferred Lighthouse/Playwright QA pass, both being run in this same session since
+Playwright and Lighthouse CLIs are available here (a first — every prior session lacked
+browser automation).
 
 ## Section tracker
 
@@ -174,9 +203,9 @@ push. Next is step 7 (booking form + FAQ + footer).
 | Camera inspection (signature) | done | Step 5. 3 Tier-3 monitor stills curated + hand-verified from `/assets-raw`; True Focus blur-to-sharp on the hero still (reduced-motion → opacity); `MonitorFrame` custom bezel (hairline, not shadow — invisible on dark) |
 | Proof-of-work gallery | done | Step 6. 12 curated Tier-2 photos (of ~44 remaining), uniform 4:5 grid, masked `backdrop-blur` Gradual Blur on top/bottom edges |
 | Areas served | done | Step 6. All 11 suburbs from `data/business.ts` as `rounded-card` chips; not yet linked (no `/[suburb]` routes in phase 1) |
-| Booking (WhatsApp form) | not started | Step 7. `wa.me/27823084750`; href built on input change, not in an async click handler |
-| FAQ | not started | Step 7. Real questions only; carries `FAQPage` schema |
-| Footer | not started | Step 7. NAP formatting must match the future Google Business Profile byte-for-byte |
+| Booking (WhatsApp form) | done | Step 7. Three controlled fields compose `waHref()` on every render; href always real at click time; validation is a hint, never a blocker |
+| FAQ | done | Step 7. 4 real questions (jetting, camera inspection, recurring blockages, quote); `<details>`, zero-JS; inline `FAQPage` JSON-LD |
+| Footer | done | Step 7. Phone/email/areas served straight from `business.ts`, no reformatting; "Waves of Change" repeated as text next to the lockup SVG |
 | SEO / schema / OpenGraph | not started | Step 8. `LocalBusiness`/`Plumber` JSON-LD, **no `openingHoursSpecification` until hours confirmed** |
 
 Status meanings: **done** = built and self-QA passed; **reviewed** = owner approved at checkpoint.
@@ -206,6 +235,18 @@ one-time manual step from step 1; preview URL to be recorded above once live.
 ## Decisions log
 
 <!-- Append-only. One line per decision, newest first. -->
+2026-07-27 — FAQ's `FAQPage` JSON-LD is generated inline in `components/FAQ.tsx` from the
+same `FAQS` array that renders the visible copy, rather than deferred to step 8's
+`data/schema.ts` module. CLAUDE.md lists "carries FAQPage schema" as part of the FAQ
+section itself (page structure item 10), and keeping the question array as the single
+source for both the copy and the schema means they can never drift apart.
+2026-07-27 — Booking form built as a client component with three controlled fields
+feeding `waHref()` on every render, rather than composing the URL inside the anchor's
+click handler — CLAUDE.md flags exactly this as "the single most likely bug in the
+build" because iOS Safari's popup blocker eats `window.open`/navigation calls made
+inside an async click handler. Empty-field prefill degrades gracefully (greeting/mobile/
+description clauses are only appended when non-empty) instead of shipping literal blank
+parentheses. No field can disable the WhatsApp anchor.
 2026-07-26 — Established a real rule for dark-section backgrounds instead of decorative alternation: `abyss` is reserved for the Hero only (its existing scrim usage); every other dark section (TrustBar, HowItWorks, CameraInspection, ProofOfWork, AreasServed) uses `ink` uniformly. A Plan-agent review caught that my first idea — reserving `abyss` for Hero *and* Camera Inspection as "the two premium moments" — would have broken Camera Inspection's own `MonitorFrame` component, which is itself `bg-abyss`; the section's "signature" status is now carried by an elevated heading size (`text-40 sm:text-64` vs every other section's `text-28 sm:text-40`) instead of background colour.
 2026-07-26 — Rebuilt HowItWorks' Scroll Stack timing around overlapping per-card scroll windows (`WINDOW = 0.5`, staggered starts) rather than three fixed non-overlapping 1/3 slices, after owner feedback that it had dead scroll space and moved too fast. A Plan-agent review caught that my first-draft fix — widening the transform offsets inside the existing fixed slices — produced non-monotonic `useTransform` breakpoints (would have broken the animation outright, not just looked wrong); the overlapping-window redesign sidesteps that failure mode by construction and is a more faithful "stack" effect besides.
 2026-07-26 — Rebuilt Services from an icon-chip 3-card grid into a numbered editorial list (reusing HowItWorks' 01/02/03 numeral motif) after owner feedback that the icon-chip-grid pattern read as generic AI-page-builder output. Confirmed the direction with the owner via a side-by-side preview before implementing, rather than picking unilaterally — it's a visual-identity call, not a technical one.
