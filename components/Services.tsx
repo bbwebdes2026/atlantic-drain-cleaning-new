@@ -25,7 +25,10 @@ export function Services() {
               key={service.id}
               className="flex flex-col gap-2 py-8 sm:flex-row sm:items-baseline sm:gap-8 sm:py-10"
             >
-              <span className="font-display text-40 font-bold text-brand/20 sm:w-16 sm:shrink-0 sm:text-right">
+              <span
+                aria-hidden="true"
+                className="font-display text-40 font-bold text-slate/70 sm:w-16 sm:shrink-0 sm:text-right"
+              >
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div>
